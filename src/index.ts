@@ -2,11 +2,7 @@
  * It represents an SmartWallet, contains the index and the address of the Smart Wallet
  */
 import { Transaction, Account } from 'web3-core';
-
-export interface SmartWallet {
-    index: number;
-    address: string;
-}
+import { SmartWallet } from './interfaces';
 
 export interface RelayingServices {
     /**
@@ -41,7 +37,7 @@ export interface RelayingServices {
         smartWallet: SmartWallet,
         tokenAddress?: string,
         tokenAmount?: number
-    ): Promise<string>;
+    ): Promise<SmartWallet>;
 
     /**
      * It attempts to relay a transaction using the provided SmartWallet and optional token. If token is not specified

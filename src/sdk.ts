@@ -20,7 +20,7 @@ import { DEFAULT_NETWORK_ID, ZERO_ADDRESS } from './constants';
 import { RelayingServicesConfiguration, SmartWallet } from './interfaces';
 import { Contracts } from './contracts';
 
-export class DefaultRelayingServicesSDK implements RelayingServices {
+export class DefaultRelayingServices implements RelayingServices {
     private readonly envelopingConfig: EnvelopingConfig;
     private readonly web3Instance: Web3;
     private readonly chainId: string;
@@ -202,9 +202,10 @@ export class DefaultRelayingServicesSDK implements RelayingServices {
 
         console.debug('Generating computed address for smart wallet');
 
-        const smartWalletAddress = this.contracts
-            .getSmartWalletFactory()
-            .methods.getSmartWalletAddress(
+        const smartWalletFactory = await this.contracts.getSmartWalletFactory();
+
+        const smartWalletAddress = smartWalletFactory.methods
+            .getSmartWalletAddress(
                 this.getAccountAddress(),
                 ZERO_ADDRESS,
                 smartWalletIndex
@@ -271,13 +272,36 @@ export class DefaultRelayingServicesSDK implements RelayingServices {
         unsignedTx: Transaction,
         smartWallet: SmartWallet,
         tokenAmount?: number
-    ): Promise<string> {
+    ): Promise<TransactionReceipt> {
         console.debug('relayTransaction Params', {
             unsignedTx,
             smartWallet,
             tokenAmount
         });
-        throw new Error('NOT IMPLEMENTED');
+        console.debug('Checking if the wallet exists');
+        if (await addressHasCode(this.web3Instance, smartWallet.address)) {
+            const transactionReceipt =
+                (await this.web3Instance.eth.sendTransaction({
+                    from: this.getAccountAddress(),
+                    callVerifier:
+                        this.contracts.addresses.smartWalletRelayVerifier,
+                    callForwarder: smartWallet.address,
+                    isSmartWalletDeploy: false,
+                    onlyPreferredRelays: true,
+                    tokenAmount,
+                    tokenContract: smartWallet.tokenAddress,
+                    ...unsignedTx
+                } as TransactionConfig)) as TransactionReceipt;
+            if (!transactionReceipt.status) {
+                const errorMessage = 'Error relaying transaction';
+                console.debug(errorMessage, transactionReceipt);
+                throw new Error(errorMessage);
+            }
+            return transactionReceipt;
+        }
+        throw new Error(
+            `Smart Wallet is not deployed or the address ${smartWallet.address} is not a smart wallet.`
+        );
     }
 
     getAccountAddress(): string {

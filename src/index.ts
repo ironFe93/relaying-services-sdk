@@ -1,10 +1,11 @@
 /**
  * It represents an SmartWallet, contains the index and the address of the Smart Wallet
  */
-import { Transaction, Account } from 'web3-core';
+import { Transaction, Account, TransactionReceipt } from 'web3-core';
 import { SmartWallet } from './interfaces';
+import { DefaultRelayingServices } from './sdk';
 
-export interface RelayingServices {
+interface RelayingServices {
     /**
      * This operation generates an smart wallet for the specified index.
      *
@@ -52,7 +53,7 @@ export interface RelayingServices {
         unsignedTx: Transaction,
         smartWallet: SmartWallet,
         tokenAmount?: number
-    ): Promise<string>;
+    ): Promise<TransactionReceipt>;
 
     /**
      * It checks if the provided tokenAddress is allowed by the rif relay verifiers.
@@ -88,3 +89,5 @@ export interface RelayingServices {
      */
     claim(commitmentReceipt: any): Promise<void>;
 }
+
+export { RelayingServices, DefaultRelayingServices };

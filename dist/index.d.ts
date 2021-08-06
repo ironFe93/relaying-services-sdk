@@ -2,8 +2,8 @@
  * It represents an SmartWallet, contains the index and the address of the Smart Wallet
  */
 import { Transaction, Account, TransactionReceipt } from 'web3-core';
-import { SmartWallet } from './interfaces';
 import { DefaultRelayingServices } from './sdk';
+import { RelayingServicesConfiguration, SmartWallet } from './interfaces';
 interface RelayingServices {
     /**
      * This operation generates an smart wallet for the specified index.
@@ -70,4 +70,4 @@ interface RelayingServices {
      */
     claim(commitmentReceipt: any): Promise<void>;
 }
-export { RelayingServices, DefaultRelayingServices };
+export { RelayingServices, DefaultRelayingServices, RelayingServicesConfiguration, SmartWallet };

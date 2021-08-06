@@ -14,17 +14,20 @@ import {
 } from '@rsksmart/rif-relay-client';
 import Web3 from 'web3';
 import { RelayVerifier } from '@rsksmart/rif-relay-contracts';
-import { addressHasCode, getAbiItem, getContract } from './utils';
+import {
+    addressHasCode,
+    getAbiItem,
+    getContract,
+    mergeConfiguration
+} from './utils';
 import { ERC20Token } from './ERC20Token';
 import { ZERO_ADDRESS } from './constants';
 import { RelayingServicesConfiguration, SmartWallet } from './interfaces';
 import { Contracts } from './contracts';
 
 export class DefaultRelayingServices implements RelayingServices {
-    private readonly envelopingConfig: EnvelopingConfig;
     private readonly web3Instance: Web3;
     private readonly account?: Account;
-    private chainId: number;
     private developmentAccounts: string[];
     private relayProvider: RelayProvider;
     private contracts: Contracts;
@@ -35,12 +38,11 @@ export class DefaultRelayingServices implements RelayingServices {
         envelopingConfig,
         web3Provider
     }: RelayingServicesConfiguration) {
-        this.envelopingConfig = envelopingConfig;
         this.web3Instance = web3Provider
             ? new Web3(web3Provider)
             : new Web3(rskHost);
         this.account = account;
-        this.initialize()
+        this.initialize(envelopingConfig)
             .then(() => {
                 console.debug('RelayingServicesSDK initialized correctly');
             })
@@ -49,17 +51,17 @@ export class DefaultRelayingServices implements RelayingServices {
             });
     }
 
-    async initialize(): Promise<void> {
-        this.developmentAccounts = await this.web3Instance.eth.getAccounts();
-        this.chainId = await this.web3Instance.eth.getChainId();
-        const resolvedConfig = await resolveConfiguration(
-            this.web3Instance.currentProvider as Web3Provider,
+    async configure(
+        envelopingConfig: Partial<EnvelopingConfig>
+    ): Promise<EnvelopingConfig> {
+        const partialConfig: Partial<EnvelopingConfig> = mergeConfiguration(
+            envelopingConfig,
             {
                 onlyPreferredRelays: true,
-                preferredRelays: this.envelopingConfig.preferredRelays,
+                preferredRelays: ['http://localhost:8090'],
                 gasPriceFactorPercent: 0,
                 relayLookupWindowBlocks: 1e5,
-                chainId: this.chainId,
+                chainId: await this.web3Instance.eth.getChainId(),
                 relayVerifierAddress:
                     this.contracts.addresses.smartWalletRelayVerifier,
                 deployVerifierAddress:
@@ -68,10 +70,21 @@ export class DefaultRelayingServices implements RelayingServices {
                     this.contracts.addresses.smartWalletFactory
             }
         );
+        const resolvedConfig = await resolveConfiguration(
+            this.web3Instance.currentProvider as Web3Provider,
+            partialConfig
+        );
         resolvedConfig.relayHubAddress = this.contracts.addresses.relayHub;
+        return resolvedConfig;
+    }
+
+    async initialize(
+        envelopingConfig: Partial<EnvelopingConfig>
+    ): Promise<void> {
+        this.developmentAccounts = await this.web3Instance.eth.getAccounts();
         const provider = new RelayProvider(
             this.web3Instance.currentProvider as HttpProvider,
-            resolvedConfig
+            await this.configure(envelopingConfig)
         );
         if (this.account) {
             provider.addAccount({
@@ -84,7 +97,10 @@ export class DefaultRelayingServices implements RelayingServices {
         }
         this.web3Instance.setProvider(provider);
         this.relayProvider = provider;
-        this.contracts = new Contracts(this.web3Instance, this.chainId);
+        this.contracts = new Contracts(
+            this.web3Instance,
+            await this.web3Instance.eth.getChainId()
+        );
     }
 
     async allowToken(

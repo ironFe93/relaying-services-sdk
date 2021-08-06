@@ -9,7 +9,7 @@ export interface SmartWallet {
 }
 export interface RelayingServicesConfiguration {
     rskHost: string;
-    envelopingConfig: EnvelopingConfig;
+    envelopingConfig: Partial<EnvelopingConfig>;
     web3Provider?: Web3Provider;
     account?: Account;
 }

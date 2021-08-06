@@ -23,7 +23,7 @@ export function getContract(
     web3: Web3,
     contractAbi: AbiItem[],
     contractAddress: string
-): Promise<Contract> {
+): Contract {
     return new web3.eth.Contract(contractAbi, contractAddress);
 }
 

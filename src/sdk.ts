@@ -141,7 +141,7 @@ export class DefaultRelayingServices implements RelayingServices {
         console.debug('Checking if the wallet already exists');
 
         if (!(await addressHasCode(this.web3Instance, smartWallet.address))) {
-            const token = await getContract(
+            const token = getContract(
                 this.web3Instance,
                 ERC20Token.getAbi(),
                 tokenAddress
@@ -202,7 +202,7 @@ export class DefaultRelayingServices implements RelayingServices {
 
         console.debug('Generating computed address for smart wallet');
 
-        const smartWalletFactory = await this.contracts.getSmartWalletFactory();
+        const smartWalletFactory = this.contracts.getSmartWalletFactory();
 
         const smartWalletAddress = smartWalletFactory.methods
             .getSmartWalletAddress(
@@ -228,9 +228,9 @@ export class DefaultRelayingServices implements RelayingServices {
 
     async getAllowedTokens(): Promise<string[]> {
         const relayVerifierContract =
-            await this.contracts.getSmartWalletRelayVerifier();
+            this.contracts.getSmartWalletRelayVerifier();
         const deployVerifierContract =
-            await this.contracts.getSmartWalletDeployVerifier();
+            this.contracts.getSmartWalletDeployVerifier();
         const relayVerifierTokens: string[] =
             await relayVerifierContract.methods.getAcceptedTokens().call();
         const deployVerifierTokens: string[] =
@@ -247,9 +247,9 @@ export class DefaultRelayingServices implements RelayingServices {
             tokenAddress
         });
         const relayVerifierContract =
-            await this.contracts.getSmartWalletRelayVerifier();
+            this.contracts.getSmartWalletRelayVerifier();
         const deployVerifierContract =
-            await this.contracts.getSmartWalletDeployVerifier();
+            this.contracts.getSmartWalletDeployVerifier();
         const relayVerifierAllowsToken: boolean =
             await relayVerifierContract.methods
                 .acceptsToken(tokenAddress)

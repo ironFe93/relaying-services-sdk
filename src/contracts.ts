@@ -42,9 +42,9 @@ export class Contracts {
             );
     }
 
-    public async getSmartWalletFactory(): Promise<Contract> {
+    public getSmartWalletFactory(): Contract {
         if (!this.smartWalletFactory) {
-            this.smartWalletFactory = await getContract(
+            this.smartWalletFactory = getContract(
                 this.web3Instance,
                 SmartWalletFactory.abi,
                 this.addresses.smartWalletFactory
@@ -53,9 +53,9 @@ export class Contracts {
         return this.smartWalletFactory;
     }
 
-    public async getSmartWalletRelayVerifier(): Promise<Contract> {
+    public getSmartWalletRelayVerifier(): Contract {
         if (!this.smartWalletRelayVerifier) {
-            this.smartWalletRelayVerifier = await getContract(
+            this.smartWalletRelayVerifier = getContract(
                 this.web3Instance,
                 RelayVerifier.abi,
                 this.addresses.smartWalletRelayVerifier
@@ -64,9 +64,9 @@ export class Contracts {
         return this.smartWalletRelayVerifier;
     }
 
-    public async getSmartWalletDeployVerifier(): Promise<Contract> {
+    public getSmartWalletDeployVerifier(): Contract {
         if (!this.smartWalletDeployVerifier) {
-            this.smartWalletDeployVerifier = await getContract(
+            this.smartWalletDeployVerifier = getContract(
                 this.web3Instance,
                 DeployVerifier.abi,
                 this.addresses.smartWalletDeployVerifier

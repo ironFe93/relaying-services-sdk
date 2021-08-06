@@ -16,15 +16,15 @@ import Web3 from 'web3';
 import { RelayVerifier } from '@rsksmart/rif-relay-contracts';
 import { addressHasCode, getAbiItem, getContract } from './utils';
 import { ERC20Token } from './ERC20Token';
-import { DEFAULT_NETWORK_ID, ZERO_ADDRESS } from './constants';
+import { ZERO_ADDRESS } from './constants';
 import { RelayingServicesConfiguration, SmartWallet } from './interfaces';
 import { Contracts } from './contracts';
 
 export class DefaultRelayingServices implements RelayingServices {
     private readonly envelopingConfig: EnvelopingConfig;
     private readonly web3Instance: Web3;
-    private readonly chainId: string;
     private readonly account?: Account;
+    private chainId: number;
     private developmentAccounts: string[];
     private relayProvider: RelayProvider;
     private contracts: Contracts;
@@ -33,14 +33,12 @@ export class DefaultRelayingServices implements RelayingServices {
         rskHost,
         account,
         envelopingConfig,
-        web3Provider,
-        chainId
+        web3Provider
     }: RelayingServicesConfiguration) {
         this.envelopingConfig = envelopingConfig;
         this.web3Instance = web3Provider
             ? new Web3(web3Provider)
             : new Web3(rskHost);
-        this.chainId = chainId ?? DEFAULT_NETWORK_ID;
         this.account = account;
         this.initialize()
             .then(() => {
@@ -53,6 +51,7 @@ export class DefaultRelayingServices implements RelayingServices {
 
     async initialize(): Promise<void> {
         this.developmentAccounts = await this.web3Instance.eth.getAccounts();
+        this.chainId = await this.web3Instance.eth.getChainId();
         const resolvedConfig = await resolveConfiguration(
             this.web3Instance.currentProvider as Web3Provider,
             {
@@ -60,7 +59,7 @@ export class DefaultRelayingServices implements RelayingServices {
                 preferredRelays: this.envelopingConfig.preferredRelays,
                 gasPriceFactorPercent: 0,
                 relayLookupWindowBlocks: 1e5,
-                chainId: parseInt(this.chainId),
+                chainId: this.chainId,
                 relayVerifierAddress:
                     this.contracts.addresses.smartWalletRelayVerifier,
                 deployVerifierAddress:

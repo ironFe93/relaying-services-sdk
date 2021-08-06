@@ -7,7 +7,7 @@ export declare class Contracts {
     private smartWalletFactory;
     private smartWalletRelayVerifier;
     private smartWalletDeployVerifier;
-    constructor(web3Instance: Web3, chainId: string);
+    constructor(web3Instance: Web3, chainId: number);
     initialize(): Promise<void>;
     getSmartWalletFactory(): Contract;
     getSmartWalletRelayVerifier(): Contract;

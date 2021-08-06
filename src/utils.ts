@@ -28,7 +28,7 @@ export function getContract(
 }
 
 export function getContractAddresses(
-    chainId: string
+    chainId: number
 ): RelayingServicesAddresses {
     return ContractAddresses[chainId];
 }

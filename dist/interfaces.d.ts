@@ -11,7 +11,6 @@ export interface RelayingServicesConfiguration {
     rskHost: string;
     envelopingConfig: EnvelopingConfig;
     web3Provider?: Web3Provider;
-    chainId?: string;
     account?: Account;
 }
 export interface RelayingServicesAddresses {

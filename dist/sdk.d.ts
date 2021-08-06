@@ -4,12 +4,12 @@ import { RelayingServicesConfiguration, SmartWallet } from './interfaces';
 export declare class DefaultRelayingServices implements RelayingServices {
     private readonly envelopingConfig;
     private readonly web3Instance;
-    private readonly chainId;
     private readonly account?;
+    private chainId;
     private developmentAccounts;
     private relayProvider;
     private contracts;
-    constructor({ rskHost, account, envelopingConfig, web3Provider, chainId }: RelayingServicesConfiguration);
+    constructor({ rskHost, account, envelopingConfig, web3Provider }: RelayingServicesConfiguration);
     initialize(): Promise<void>;
     allowToken(tokenAddress: string, contractsOwnerAccount: Account): Promise<void>;
     claim(commitmentReceipt: any): Promise<void>;

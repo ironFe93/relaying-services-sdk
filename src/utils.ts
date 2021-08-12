@@ -13,19 +13,19 @@ export function getAbiItem(contractAbi: AbiItem[], itemName: string): AbiItem {
 }
 
 export async function addressHasCode(
-    web3: Web3,
+    web3Instance: Web3,
     smartWalletAddress: string
 ): Promise<boolean> {
-    const code = await web3.eth.getCode(smartWalletAddress);
+    const code = await web3Instance.eth.getCode(smartWalletAddress);
     return code !== '0x00' && code !== '0x';
 }
 
 export function getContract(
-    web3: Web3,
+    web3Instance: Web3,
     contractAbi: AbiItem[],
     contractAddress: string
 ): Contract {
-    return new web3.eth.Contract(contractAbi, contractAddress);
+    return new web3Instance.eth.Contract(contractAbi, contractAddress);
 }
 
 export function getContractAddresses(

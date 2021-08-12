@@ -44,10 +44,11 @@ export class DefaultRelayingServices implements RelayingServices {
         contractAddresses,
         web3Instance
     }: RelayingServicesConfiguration) {
-        this.web3Instance =
-            web3Instance ?? web3Provider
-                ? new Web3(web3Provider as any)
-                : new Web3(rskHost);
+        this.web3Instance = web3Instance
+            ? web3Instance
+            : web3Provider
+            ? new Web3(web3Provider as any)
+            : new Web3(rskHost);
         this.account = account;
         this.initialize(envelopingConfig, contractAddresses)
             .then(() => {

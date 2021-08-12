@@ -12,10 +12,12 @@ describe('Tests for claim operation', () => {
     });
 
     it('Should fail by not implemented error', async () => {
-        expect(await sdk.claim({})).toThrow(
-            new Error(
+        try {
+            await sdk.claim({});
+        } catch (error) {
+            expect(error.message).toBe(
                 'NOT IMPLEMENTED: this will be available with arbiter integration.'
-            )
-        );
+            );
+        }
     });
 });

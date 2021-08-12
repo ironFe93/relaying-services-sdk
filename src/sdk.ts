@@ -22,27 +22,34 @@ import {
 } from './utils';
 import { ERC20Token } from './ERC20Token';
 import { ZERO_ADDRESS } from './constants';
-import { RelayingServicesConfiguration, SmartWallet } from './interfaces';
+import {
+    RelayingServicesAddresses,
+    RelayingServicesConfiguration,
+    SmartWallet
+} from './interfaces';
 import { Contracts } from './contracts';
 
 export class DefaultRelayingServices implements RelayingServices {
-    private readonly web3Instance: Web3;
-    private readonly account?: Account;
-    private developmentAccounts: string[];
-    private relayProvider: RelayProvider;
-    private contracts: Contracts;
+    protected readonly web3Instance: Web3;
+    protected readonly account?: Account;
+    protected developmentAccounts: string[];
+    protected relayProvider: RelayProvider;
+    protected contracts: Contracts;
 
     constructor({
         rskHost,
         account,
         envelopingConfig,
-        web3Provider
+        web3Provider,
+        contractAddresses,
+        web3Instance
     }: RelayingServicesConfiguration) {
-        this.web3Instance = web3Provider
-            ? new Web3(web3Provider)
-            : new Web3(rskHost);
+        this.web3Instance =
+            web3Instance ?? web3Provider
+                ? new Web3(web3Provider as any)
+                : new Web3(rskHost);
         this.account = account;
-        this.initialize(envelopingConfig)
+        this.initialize(envelopingConfig, contractAddresses)
             .then(() => {
                 console.debug('RelayingServicesSDK initialized correctly');
             })
@@ -70,16 +77,19 @@ export class DefaultRelayingServices implements RelayingServices {
                     this.contracts.addresses.smartWalletFactory
             }
         );
-        const resolvedConfig = await resolveConfiguration(
+        const resolvedConfig: EnvelopingConfig = await resolveConfiguration(
             this.web3Instance.currentProvider as Web3Provider,
             partialConfig
         );
-        resolvedConfig.relayHubAddress = this.contracts.addresses.relayHub;
+        resolvedConfig.relayHubAddress =
+            envelopingConfig.relayHubAddress ??
+            this.contracts.addresses.relayHub;
         return resolvedConfig;
     }
 
     async initialize(
-        envelopingConfig: Partial<EnvelopingConfig>
+        envelopingConfig: Partial<EnvelopingConfig>,
+        contractAddresses?: RelayingServicesAddresses
     ): Promise<void> {
         this.developmentAccounts = await this.web3Instance.eth.getAccounts();
         const provider = new RelayProvider(
@@ -99,7 +109,8 @@ export class DefaultRelayingServices implements RelayingServices {
         this.relayProvider = provider;
         this.contracts = new Contracts(
             this.web3Instance,
-            await this.web3Instance.eth.getChainId()
+            await this.web3Instance.eth.getChainId(),
+            contractAddresses
         );
     }
 
@@ -112,9 +123,10 @@ export class DefaultRelayingServices implements RelayingServices {
             contractsOwnerAccount
         });
         const abiMethod = getAbiItem(RelayVerifier.abi, 'acceptToken');
-        const encodedCall = web3.eth.abi.encodeFunctionCall(abiMethod, [
-            tokenAddress
-        ]);
+        const encodedCall = this.web3Instance.eth.abi.encodeFunctionCall(
+            abiMethod,
+            [tokenAddress]
+        );
         const transactionConfig: TransactionConfig = {
             from: contractsOwnerAccount.address,
             to: this.contracts.addresses.smartWalletRelayVerifier,

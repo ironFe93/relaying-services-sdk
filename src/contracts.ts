@@ -17,9 +17,15 @@ export class Contracts {
     private smartWalletRelayVerifier: Contract;
     private smartWalletDeployVerifier: Contract;
 
-    constructor(web3Instance: Web3, chainId: number) {
+    constructor(
+        web3Instance: Web3,
+        chainId: number,
+        contractAddresses?: RelayingServicesAddresses
+    ) {
         this.web3Instance = web3Instance;
-        this.addresses = getContractAddresses(chainId ?? DEFAULT_NETWORK_ID);
+        this.addresses =
+            contractAddresses ??
+            getContractAddresses(chainId ?? DEFAULT_NETWORK_ID);
         this.initialize()
             .then(() => {
                 console.debug('Contracts initialized correctly');

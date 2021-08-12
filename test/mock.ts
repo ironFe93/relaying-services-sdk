@@ -1,14 +1,22 @@
 import { DefaultRelayingServices } from '../src';
 import Web3 from 'web3';
-import { EnvelopingConfig } from '@rsksmart/rif-relay-common';
+import {
+    EnvelopingConfig,
+    EnvelopingTransactionDetails
+} from '@rsksmart/rif-relay-common';
 import { RelayingServicesAddresses } from '../src/interfaces';
 import { Contracts } from '../src/contracts';
 import { AbiItem } from 'web3-utils';
 import {
-    MOCK_ACCOUNT,
+    DEFAULT_WEB3_MOCK_CONFIGURATION,
+    EMPTY_CODE,
+    MOCK_ADDRESS,
     MOCK_CODE,
-    MOCK_SMART_WALLET_ADDRESS
+    MOCK_SMART_WALLET_ADDRESS,
+    MOCK_TRANSACTION_HASH,
+    MOCK_TRANSACTION_RECEIPT
 } from './constants';
+import { TransactionReceipt } from 'web3-core';
 
 declare const jest: any;
 
@@ -16,6 +24,10 @@ const sendSignedTransactionMock = jest.fn();
 sendSignedTransactionMock.mockReturnValue({
     status: true
 });
+
+export interface Web3MockConfiguration {
+    getCodeEmpty?: boolean;
+}
 
 export class Web3MethodsMock {
     constructor(private abi: AbiItem, private address: string) {}
@@ -35,6 +47,16 @@ export class Web3MethodsMock {
             }
         };
     }
+    public balanceOf(address: string) {
+        console.debug('balanceOf', {
+            address
+        });
+        return {
+            call: () => {
+                return 0;
+            }
+        };
+    }
 }
 
 export class Web3ContractMock {
@@ -45,31 +67,69 @@ export class Web3ContractMock {
     }
 }
 
+export class Web3AbiMock {
+    encodeFunctionCall: any = (abiItem: AbiItem, params: string[]): string => {
+        console.debug('encodeFunctionCall', {
+            abiItem,
+            params
+        });
+        return 'encodedCall';
+    };
+}
+
 export class Web3EthMock {
+    constructor(private configuration: Web3MockConfiguration) {}
     sendSignedTransaction: any = sendSignedTransactionMock;
     Contract = Web3ContractMock;
     getCode = (address: string): Promise<string> => {
         console.debug('getCode', {
             address
         });
-        return Promise.resolve(MOCK_CODE);
+        return this.configuration.getCodeEmpty
+            ? Promise.resolve(EMPTY_CODE)
+            : Promise.resolve(MOCK_CODE);
+    };
+    abi: Web3AbiMock = new Web3AbiMock();
+    getTransactionReceipt = (
+        hash: string,
+        callback: any
+    ): Promise<TransactionReceipt> => {
+        console.debug('getTransactionReceipt', {
+            hash,
+            callback
+        });
+        return Promise.resolve(MOCK_TRANSACTION_RECEIPT);
     };
 }
 
 export class Web3Mock {
-    eth: Web3EthMock = new Web3EthMock();
+    eth: Web3EthMock;
+    constructor(private configuration: Web3MockConfiguration) {
+        this.eth = new Web3EthMock(configuration);
+    }
 }
 
-const web3Mock = new Web3Mock();
+const web3Mock: Web3 = new Web3Mock(DEFAULT_WEB3_MOCK_CONFIGURATION) as any;
 
 export class MockContracts extends Contracts {
     constructor(web3Instance?: Web3) {
-        super(web3Instance ?? (web3Mock as Web3), 33);
+        super(web3Instance ? web3Instance : web3Mock, 33);
     }
 
     async initialize(): Promise<void> {
         console.debug('Initializing MockContracts');
         return super.initialize();
+    }
+}
+
+export class MockRelayProvider {
+    deploySmartWallet(
+        transactionDetails: EnvelopingTransactionDetails
+    ): Promise<string> {
+        console.debug('deploySmartWallet', {
+            transactionDetails
+        });
+        return Promise.resolve(MOCK_TRANSACTION_HASH);
     }
 }
 
@@ -92,10 +152,11 @@ export class MockRelayingServices extends DefaultRelayingServices {
             web3: this.web3Instance
         });
         this.contracts = new MockContracts(this.web3Instance);
+        this.relayProvider = new MockRelayProvider() as any;
         return Promise.resolve();
     }
 
     getAccountAddress(): string {
-        return MOCK_ACCOUNT;
+        return MOCK_ADDRESS;
     }
 }

@@ -168,7 +168,12 @@ export class DefaultRelayingServices implements RelayingServices {
 
         console.debug('Checking if the wallet already exists');
 
-        if (!(await addressHasCode(this.web3Instance, smartWallet.address))) {
+        const smartWalletDeployed = await addressHasCode(
+            this.web3Instance,
+            smartWallet.address
+        );
+
+        if (!smartWalletDeployed) {
             const token = getContract(
                 this.web3Instance,
                 ERC20Token.getAbi(),

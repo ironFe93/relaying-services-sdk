@@ -4,7 +4,7 @@ import { EnvelopingConfig, Web3Provider } from '@rsksmart/rif-relay-common';
 export interface SmartWallet {
     index: number;
     address: string;
-    deployed: boolean;
+    deployed?: boolean;
     deployTransaction?: TransactionReceipt;
     tokenAddress?: string;
 }

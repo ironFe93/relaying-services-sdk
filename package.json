@@ -15,7 +15,7 @@
     "switchPostInstall": "scripts/switchPostInstall",
     "prettier:fix": "npx prettier --write --ignore-unknown .",
     "prettier": "npx prettier --check .",
-    "test": "jest"
+    "test": "scripts/test"
   },
   "author": "Relaying Services Team",
   "license": "MIT",

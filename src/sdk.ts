@@ -3,7 +3,6 @@ import {
     Account,
     HttpProvider,
     SignedTransaction,
-    Transaction,
     TransactionConfig,
     TransactionReceipt
 } from 'web3-core';
@@ -302,7 +301,7 @@ export class DefaultRelayingServices implements RelayingServices {
     }
 
     async relayTransaction(
-        unsignedTx: Transaction,
+        unsignedTx: TransactionConfig,
         smartWallet: SmartWallet,
         tokenAmount?: number
     ): Promise<TransactionReceipt> {

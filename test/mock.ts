@@ -20,10 +20,10 @@ import { TransactionReceipt } from 'web3-core';
 
 declare const jest: any;
 
-const sendSignedTransactionMock = jest.fn();
-sendSignedTransactionMock.mockReturnValue({
-    status: true
-});
+const MOCKS = {
+    sendSignedTransaction: jest.fn().mockReturnValue(MOCK_TRANSACTION_RECEIPT),
+    sendTransaction: jest.fn().mockReturnValue(MOCK_TRANSACTION_RECEIPT)
+};
 
 export interface Web3MockConfiguration {
     getCodeEmpty?: boolean;
@@ -79,7 +79,8 @@ export class Web3AbiMock {
 
 export class Web3EthMock {
     constructor(private configuration: Web3MockConfiguration) {}
-    sendSignedTransaction: any = sendSignedTransactionMock;
+    sendSignedTransaction: any = MOCKS.sendSignedTransaction;
+    sendTransaction: any = MOCKS.sendTransaction;
     Contract = Web3ContractMock;
     getCode = (address: string): Promise<string> => {
         console.debug('getCode', {

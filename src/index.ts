@@ -1,7 +1,7 @@
 /**
  * It represents an SmartWallet, contains the index and the address of the Smart Wallet
  */
-import { Transaction, Account, TransactionReceipt } from 'web3-core';
+import { Account, TransactionConfig, TransactionReceipt } from 'web3-core';
 import { DefaultRelayingServices } from './sdk';
 import { RelayingServicesConfiguration, SmartWallet } from './interfaces';
 
@@ -50,7 +50,7 @@ interface RelayingServices {
      * will be subsidized.
      */
     relayTransaction(
-        unsignedTx: Transaction,
+        unsignedTx: TransactionConfig,
         smartWallet: SmartWallet,
         tokenAmount?: number
     ): Promise<TransactionReceipt>;

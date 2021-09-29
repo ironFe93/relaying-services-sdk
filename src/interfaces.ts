@@ -1,11 +1,11 @@
-import { Account, TransactionReceipt } from 'web3-core';
+import { Account } from 'web3-core';
 import { EnvelopingConfig, Web3Provider } from '@rsksmart/rif-relay-common';
 
 export interface SmartWallet {
     index: number;
     address: string;
-    deployed?: boolean;
-    deployTransaction?: TransactionReceipt;
+    deployed: boolean;
+    deployTransaction?: string;
     tokenAddress?: string;
 }
 

@@ -49,3 +49,26 @@ export function mergeConfiguration(
     );
     return mergedConfiguration;
 }
+export async function getRevertReason(txHash: string) {
+    const tx: any = await web3.eth.getTransaction(txHash);
+    const txBlockNumber = tx.blockNumber;
+    try {
+        delete tx['hash'];
+        delete tx['blockHash'];
+        delete tx['blockNumber'];
+        delete tx['transactionIndex'];
+        delete tx['v'];
+        delete tx['r'];
+        delete tx['s'];
+
+        let result: any = await web3.eth.call(tx, txBlockNumber);
+        result = result.startsWith('0x') ? result : '0x' + result;
+        if (result && result.substr(138)) {
+            return web3.utils.toAscii(result.substr(138));
+        } else {
+            return 'Cannot get reason - No return value';
+        }
+    } catch (reason) {
+        return reason;
+    }
+}

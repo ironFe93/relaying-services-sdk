@@ -1,8 +1,7 @@
 import Web3 from 'web3';
 import { Contract } from 'web3-eth-contract';
 import { RelayingServicesAddresses } from './interfaces';
-import { getContract, getContractAddresses } from './utils';
-import { DEFAULT_NETWORK_ID } from './constants';
+import { getContract, getContractAddresses, mergeConfiguration } from './utils';
 import {
     DeployVerifier,
     RelayVerifier,
@@ -22,29 +21,31 @@ export class Contracts {
         contractAddresses?: RelayingServicesAddresses
     ) {
         this.web3Instance = web3Instance;
-        this.addresses =
-            contractAddresses ??
-            getContractAddresses(chainId ?? DEFAULT_NETWORK_ID);
-        this.initialize()
-            .then(() => {
-                console.debug('Contracts initialized correctly');
-            })
-            .catch((error) => {
-                console.error('Contracts fail to initialize', error);
-            });
+        contractAddresses = contractAddresses ?? <RelayingServicesAddresses>{};
+        const contracts: RelayingServicesAddresses =
+            getContractAddresses(chainId);
+        this.addresses = <RelayingServicesAddresses>(
+            mergeConfiguration(contractAddresses, contracts)
+        );
+        this.initialize();
     }
 
-    async initialize(): Promise<void> {
-        this.smartWalletRelayVerifier = getContract(
-            this.web3Instance,
-            RelayVerifier.abi,
-            this.addresses.smartWalletRelayVerifier
-        );
-        this.smartWalletDeployVerifier = getContract(
-            this.web3Instance,
-            DeployVerifier.abi,
-            this.addresses.smartWalletDeployVerifier
-        );
+    protected initialize(): void {
+        try {
+            this.smartWalletRelayVerifier = getContract(
+                this.web3Instance,
+                RelayVerifier.abi,
+                this.addresses.smartWalletRelayVerifier
+            );
+            this.smartWalletDeployVerifier = getContract(
+                this.web3Instance,
+                DeployVerifier.abi,
+                this.addresses.smartWalletDeployVerifier
+            );
+            console.debug('Contracts initialized correctly');
+        } catch (error: any) {
+            throw new Error('Contracts fail to initialize: ' + error.message);
+        }
     }
 
     public getSmartWalletFactory(): Contract {

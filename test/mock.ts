@@ -57,6 +57,36 @@ export class Web3MethodsMock {
             }
         };
     }
+    public acceptsToken(address: string) {
+        console.debug('acceptsToken', {
+            address
+        });
+        return {
+            call: () => {
+                return true;
+            }
+        };
+    }
+    public getAcceptedTokens() {
+        console.debug('getAcceptedTokens');
+        return {
+            call: () => {
+                return [MOCK_ADDRESS];
+            }
+        };
+    }
+    async generateSmartWallet(smartWalletIndex: number) {
+        console.debug('generateSmartWallet');
+        return {
+            call: () => {
+                return {
+                    address: MOCK_SMART_WALLET_ADDRESS,
+                    index: smartWalletIndex,
+                    deployed: true
+                };
+            }
+        };
+    }
 }
 
 export class Web3ContractMock {
@@ -102,11 +132,24 @@ export class Web3EthMock {
         return Promise.resolve(MOCK_TRANSACTION_RECEIPT);
     };
 }
+export class Web3UtilsMock {
+    constructor(private configuration: Web3MockConfiguration) {}
+    async toWei() {
+        console.debug('getAllowedTokens');
+        return {
+            call: () => {
+                return [MOCK_SMART_WALLET_ADDRESS];
+            }
+        };
+    }
+}
 
 export class Web3Mock {
     eth: Web3EthMock;
+    utils: Web3UtilsMock;
     constructor(private configuration: Web3MockConfiguration) {
         this.eth = new Web3EthMock(configuration);
+        this.utils = new Web3UtilsMock(configuration);
     }
 }
 
@@ -117,7 +160,7 @@ export class MockContracts extends Contracts {
         super(web3Instance ? web3Instance : web3Mock, 33);
     }
 
-    async initialize(): Promise<void> {
+    initialize(): void {
         console.debug('Initializing MockContracts');
         return super.initialize();
     }
@@ -132,6 +175,22 @@ export class MockRelayProvider {
         });
         return Promise.resolve(MOCK_TRANSACTION_HASH);
     }
+    async getAllowedTokens() {
+        console.debug('getAllowedTokens');
+        return {
+            call: () => {
+                return [MOCK_SMART_WALLET_ADDRESS];
+            }
+        };
+    }
+    async _ethSendTransaction() {
+        console.debug('_ethSendTransaction');
+        return {
+            call: () => {
+                return MOCK_TRANSACTION_RECEIPT;
+            }
+        };
+    }
 }
 
 export class MockRelayingServices extends DefaultRelayingServices {
@@ -143,7 +202,7 @@ export class MockRelayingServices extends DefaultRelayingServices {
         });
     }
 
-    async initialize(
+    public async initialize(
         envelopingConfig: Partial<EnvelopingConfig>,
         contractAddresses?: RelayingServicesAddresses
     ): Promise<void> {
@@ -159,5 +218,9 @@ export class MockRelayingServices extends DefaultRelayingServices {
 
     getAccountAddress(): string {
         return MOCK_ADDRESS;
+    }
+    async allowToken(tokenAddress: string): Promise<string> {
+        console.debug('_ethSendTransaction');
+        return tokenAddress;
     }
 }

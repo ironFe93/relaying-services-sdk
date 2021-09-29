@@ -9,12 +9,14 @@ describe('Tests for claim operation', () => {
 
     beforeEach(async () => {
         sdk = new MockRelayingServices();
+        await sdk.initialize({});
     });
 
     it('Should fail by not implemented error', async () => {
         try {
             await sdk.claim({});
-        } catch (error) {
+            fail('The claim will not implement in this version of SDK');
+        } catch (error: any) {
             expect(error.message).toBe(
                 'NOT IMPLEMENTED: this will be available with arbiter integration.'
             );

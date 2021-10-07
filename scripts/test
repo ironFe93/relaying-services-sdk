@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [ "${1}" == "" ]; then
+    npx jest --runInBand ./test
+else
+    npx jest --runInBand "$@"
+fi
+

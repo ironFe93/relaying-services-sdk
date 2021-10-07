@@ -13,19 +13,19 @@ export function getAbiItem(contractAbi: AbiItem[], itemName: string): AbiItem {
 }
 
 export async function addressHasCode(
-    web3: Web3,
+    web3Instance: Web3,
     smartWalletAddress: string
 ): Promise<boolean> {
-    const code = await web3.eth.getCode(smartWalletAddress);
+    const code = await web3Instance.eth.getCode(smartWalletAddress);
     return code !== '0x00' && code !== '0x';
 }
 
 export function getContract(
-    web3: Web3,
+    web3Instance: Web3,
     contractAbi: AbiItem[],
     contractAddress: string
 ): Contract {
-    return new web3.eth.Contract(contractAbi, contractAddress);
+    return new web3Instance.eth.Contract(contractAbi, contractAddress);
 }
 
 export function getContractAddresses(
@@ -48,4 +48,27 @@ export function mergeConfiguration(
         (key) => (mergedConfiguration[key] = inputConfig[key])
     );
     return mergedConfiguration;
+}
+export async function getRevertReason(txHash: string) {
+    const tx: any = await web3.eth.getTransaction(txHash);
+    const txBlockNumber = tx.blockNumber;
+    try {
+        delete tx['hash'];
+        delete tx['blockHash'];
+        delete tx['blockNumber'];
+        delete tx['transactionIndex'];
+        delete tx['v'];
+        delete tx['r'];
+        delete tx['s'];
+
+        let result: any = await web3.eth.call(tx, txBlockNumber);
+        result = result.startsWith('0x') ? result : '0x' + result;
+        if (result && result.substr(138)) {
+            return web3.utils.toAscii(result.substr(138));
+        } else {
+            return 'Cannot get reason - No return value';
+        }
+    } catch (reason) {
+        return reason;
+    }
 }

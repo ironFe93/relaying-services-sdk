@@ -1,11 +1,27 @@
 /**
  * It represents an SmartWallet, contains the index and the address of the Smart Wallet
  */
-import { Transaction, Account, TransactionReceipt } from 'web3-core';
+import { TransactionConfig, TransactionReceipt } from 'web3-core';
 import { DefaultRelayingServices } from './sdk';
-import { RelayingServicesConfiguration, SmartWallet } from './interfaces';
+import {
+    RelayingServicesAddresses,
+    RelayingServicesConfiguration,
+    SmartWallet
+} from './interfaces';
+import { EnvelopingConfig } from '@rsksmart/rif-relay-common';
 
 interface RelayingServices {
+    /**
+     * This operation initialize the realying service sdk.
+     *
+     * @param envelopingConfig the partial enveloping configuration
+     * @param contractAddresses the contract addresses optional
+     */
+    initialize(
+        envelopingConfig: Partial<EnvelopingConfig>,
+        contractAddresses?: RelayingServicesAddresses
+    ): Promise<void>;
+
     /**
      * This operation generates an smart wallet for the specified index.
      *
@@ -50,7 +66,7 @@ interface RelayingServices {
      * will be subsidized.
      */
     relayTransaction(
-        unsignedTx: Transaction,
+        unsignedTx: TransactionConfig,
         smartWallet: SmartWallet,
         tokenAmount?: number
     ): Promise<TransactionReceipt>;
@@ -76,10 +92,7 @@ interface RelayingServices {
      * @param tokenAddress the token address to mark as allowed by the relaying services system.
      * @param contractsOwnerAccount the owner account of the relaying services contracts
      */
-    allowToken(
-        tokenAddress: string,
-        contractsOwnerAccount: Account
-    ): Promise<void>;
+    allowToken(tokenAddress: string, account: string): Promise<string>;
 
     /**
      * It executes a claim for a commitmentReceipt, this is to penalize a
@@ -88,6 +101,17 @@ interface RelayingServices {
      * @param commitmentReceipt the commitment receipt of the commited transaction
      */
     claim(commitmentReceipt: any): Promise<void>;
+
+    /**
+     * It executes a estimate max possible relay gas to get a number value
+     *
+     * @param trxDetails the transaction details
+     * @param relayWorker the realy worker contract address
+     */
+    estimateMaxPossibleRelayGas(
+        SmartWallet: SmartWallet,
+        relayWorker: string
+    ): Promise<string>;
 }
 
 export {

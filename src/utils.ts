@@ -3,6 +3,7 @@ import { RelayingServicesAddresses } from './interfaces';
 import { ContractAddresses } from '@rsksmart/rif-relay-contracts';
 import { Contract } from 'web3-eth-contract';
 import { EnvelopingConfig } from '@rsksmart/rif-relay-common';
+import { ContractError } from './ContractError';
 
 export function getAbiItem(contractAbi: AbiItem[], itemName: string): AbiItem {
     const abiItems = contractAbi.filter((abiItem) => abiItem.name === itemName);
@@ -31,7 +32,13 @@ export function getContract(
 export function getContractAddresses(
     chainId: number
 ): RelayingServicesAddresses {
-    return ContractAddresses[chainId];
+    const contracts = ContractAddresses[chainId];
+    if (!contracts) {
+        throw new ContractError(
+            `No contracts found for the specified network id ${chainId}.`
+        );
+    }
+    return contracts;
 }
 
 export function mergeConfiguration(

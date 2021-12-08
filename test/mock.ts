@@ -16,7 +16,7 @@ import {
     MOCK_TRANSACTION_HASH,
     MOCK_TRANSACTION_RECEIPT
 } from './constants';
-import { TransactionReceipt } from 'web3-core';
+import { Account, TransactionReceipt } from 'web3-core';
 
 declare const jest: any;
 
@@ -188,6 +188,7 @@ export class MockRelayingServices extends DefaultRelayingServices {
     constructor(web3Instance?: Web3) {
         super({
             rskHost: '',
+            account: <Account>{ address: MOCK_ADDRESS },
             envelopingConfig: {},
             web3Instance: web3Instance ? web3Instance : (web3Mock as Web3)
         });
@@ -207,9 +208,6 @@ export class MockRelayingServices extends DefaultRelayingServices {
         return Promise.resolve();
     }
 
-    getAccountAddress(): string {
-        return MOCK_ADDRESS;
-    }
     async allowToken(tokenAddress: string): Promise<string> {
         console.debug('_ethSendTransaction');
         return tokenAddress;

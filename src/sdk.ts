@@ -361,7 +361,6 @@ export class DefaultRelayingServices implements RelayingServices {
                     {
                         from: this.getAccountAddress(),
                         to: smartWallet.tokenAddress,
-                        gas: 223000,
                         value: '0',
                         relayHub: this.contracts.addresses.relayHub,
                         callVerifier:

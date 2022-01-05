@@ -440,7 +440,7 @@ export class DefaultRelayingServices implements RelayingServices {
                 relayWorker
             );
         const maxPossibleGas = toBN(maxPossibleGasValue);
-        const estimate = maxPossibleGas.mul(gasPrice).mul(toBN(10));
+        const estimate = maxPossibleGas.mul(gasPrice);
         return estimate.toString();
     }
 

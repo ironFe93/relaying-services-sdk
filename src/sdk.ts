@@ -11,6 +11,7 @@ import {
     Web3Provider
 } from '@rsksmart/rif-relay-common';
 import {
+    Address,
     RelayProvider,
     resolveConfiguration
 } from '@rsksmart/rif-relay-client';
@@ -341,12 +342,14 @@ export class DefaultRelayingServices implements RelayingServices {
     async relayTransaction(
         unsignedTx: TransactionConfig,
         smartWallet: SmartWallet,
-        tokenAmount?: number
+        tokenAmount?: number,
+        collectorContract?: Address,
     ): Promise<TransactionReceipt> {
         console.debug('relayTransaction Params', {
             unsignedTx,
             smartWallet,
-            tokenAmount
+            tokenAmount,
+            collectorContract
         });
         console.debug('Checking if the wallet exists');
         if (await addressHasCode(this.web3Instance, smartWallet.address)) {
@@ -365,6 +368,7 @@ export class DefaultRelayingServices implements RelayingServices {
                         callForwarder: smartWallet.address,
                         data: unsignedTx.data,
                         tokenContract: smartWallet.tokenAddress,
+                        collectorContract: collectorContract,
                         tokenAmount: await this.web3Instance.utils.toWei(
                             tokenAmount.toString()
                         ),

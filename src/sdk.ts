@@ -372,6 +372,7 @@ export class DefaultRelayingServices implements RelayingServices {
                         tokenAmount: await this.web3Instance.utils.toWei(
                             tokenAmount.toString()
                         ),
+                        tokenGas: 223000,
                         onlyPreferredRelays: true
                     }
                 ]

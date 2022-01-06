@@ -107,11 +107,28 @@ interface RelayingServices {
     /**
      * It executes a estimate max possible relay gas to get a number value
      *
-     * @param trxDetails the transaction details
+     * @param smartWallet address create the transaction details for forwarder transaction
      * @param relayWorker the realy worker contract address
      */
     estimateMaxPossibleRelayGas(
         SmartWallet: SmartWallet,
+        relayWorker: string
+    ): Promise<string>;
+
+    /**
+     * It executes a estimate max possible relay gas relay with linear fit to get a number value
+     *
+     * @param destinationContract destination contract address
+     * @param smartWalletAddress smart wallet address to all forwarder transaction
+     * @param tokenFees amount of token that cost the transaction
+     * @param abiEncodedTx Abi encoding transaction details
+     * @param relayWorker the realy worker contract address
+     */
+    estimateMaxPossibleRelayGasWithLinearFit(
+        destinationContract: string,
+        smartWalletAddress: string,
+        tokenFees: string,
+        abiEncodedTx: string,
         relayWorker: string
     ): Promise<string>;
 }

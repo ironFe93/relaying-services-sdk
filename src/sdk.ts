@@ -237,7 +237,7 @@ export class DefaultRelayingServices implements RelayingServices {
             tokenAddress,
             tokenAmount
         });
-        tokenAmount = tokenAmount ?? 0;
+        // tokenAmount = tokenAmount ?? 0;
         console.debug('Checking if the wallet already exists');
         const smartWalletDeployed = await addressHasCode(
             this.web3Instance,
@@ -274,7 +274,7 @@ export class DefaultRelayingServices implements RelayingServices {
                     this.contracts.addresses.smartWalletDeployVerifier,
                 callForwarder: this.contracts.addresses.smartWalletFactory,
                 tokenContract: tokenAddress,
-                tokenAmount: tokenAmount.toString(),
+                tokenAmount: tokenAmount?.toString(),
                 data: '0x',
                 index: smartWallet.index.toString(),
                 recoverer: ZERO_ADDRESS,
@@ -343,7 +343,7 @@ export class DefaultRelayingServices implements RelayingServices {
         unsignedTx: TransactionConfig,
         smartWallet: SmartWallet,
         tokenAmount?: number,
-        collectorContract?: Address,
+        collectorContract?: Address
     ): Promise<TransactionReceipt> {
         console.debug('relayTransaction Params', {
             unsignedTx,
@@ -368,10 +368,12 @@ export class DefaultRelayingServices implements RelayingServices {
                         callForwarder: smartWallet.address,
                         data: unsignedTx.data,
                         tokenContract: smartWallet.tokenAddress,
+                        tokenAmount: [null, undefined].includes(tokenAmount)
+                            ? undefined
+                            : this.web3Instance.utils.toWei(
+                                  tokenAmount.toString()
+                              ),
                         collectorContract: collectorContract,
-                        tokenAmount: await this.web3Instance.utils.toWei(
-                            tokenAmount.toString()
-                        ),
                         tokenGas: '223000',
                         onlyPreferredRelays: true
                     }

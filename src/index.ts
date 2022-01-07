@@ -70,7 +70,7 @@ interface RelayingServices {
         unsignedTx: TransactionConfig,
         smartWallet: SmartWallet,
         tokenAmount?: number,
-        collectorContract?: string,
+        collectorContract?: string
     ): Promise<TransactionReceipt>;
 
     /**

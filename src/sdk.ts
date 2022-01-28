@@ -341,12 +341,14 @@ export class DefaultRelayingServices implements RelayingServices {
     async relayTransaction(
         unsignedTx: TransactionConfig,
         smartWallet: SmartWallet,
-        tokenAmount?: number
+        tokenAmount?: number,
+        transactionDetails?: EnvelopingTransactionDetails
     ): Promise<TransactionReceipt> {
         console.debug('relayTransaction Params', {
             unsignedTx,
             smartWallet,
-            tokenAmount
+            tokenAmount,
+            transactionDetails
         });
         console.debug('Checking if the wallet exists');
         if (await addressHasCode(this.web3Instance, smartWallet.address)) {
@@ -368,7 +370,8 @@ export class DefaultRelayingServices implements RelayingServices {
                         tokenAmount: await this.web3Instance.utils.toWei(
                             tokenAmount.toString()
                         ),
-                        onlyPreferredRelays: true
+                        onlyPreferredRelays: true,
+                        ...transactionDetails
                     }
                 ]
             };
@@ -380,11 +383,11 @@ export class DefaultRelayingServices implements RelayingServices {
                             if (error) {
                                 reject(error);
                             }
-                            const recipint =
+                            const recipient =
                                 await web3.eth.getTransactionReceipt(
                                     jsonrpc.result
                                 );
-                            resolve(recipint);
+                            resolve(recipient);
                         }
                     );
                 }

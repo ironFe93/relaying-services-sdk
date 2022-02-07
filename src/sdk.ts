@@ -374,7 +374,6 @@ export class DefaultRelayingServices implements RelayingServices {
                                   tokenAmount.toString()
                               ),
                         collectorContract: collectorContract,
-                        tokenGas: '223000',
                         onlyPreferredRelays: true
                     }
                 ]

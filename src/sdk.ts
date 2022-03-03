@@ -237,7 +237,6 @@ export class DefaultRelayingServices implements RelayingServices {
             tokenAddress,
             tokenAmount
         });
-        // tokenAmount = tokenAmount ?? 0;
         console.debug('Checking if the wallet already exists');
         const smartWalletDeployed = await addressHasCode(
             this.web3Instance,

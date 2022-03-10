@@ -1,0 +1,31 @@
+import { RelayingServices } from './index';
+import { TransactionConfig, TransactionReceipt } from 'web3-core';
+import { EnvelopingConfig, EnvelopingTransactionDetails } from '@rsksmart/rif-relay-common';
+import { RelayProvider } from '@rsksmart/rif-relay-client';
+import Web3 from 'web3';
+import { RelayingServicesAddresses, RelayingServicesConfiguration, SmartWallet } from './interfaces';
+import { Contracts } from './contracts';
+export declare class DefaultRelayingServices implements RelayingServices {
+    protected readonly web3Instance: Web3;
+    private readonly account?;
+    private developmentAccounts;
+    protected relayProvider: RelayProvider;
+    protected contracts: Contracts;
+    protected contractAddresses: RelayingServicesAddresses;
+    protected envelopingConfig: EnvelopingConfig;
+    private txId;
+    constructor({ rskHost, account, web3Provider, web3Instance }: RelayingServicesConfiguration);
+    configure(envelopingConfig: Partial<EnvelopingConfig>): Promise<EnvelopingConfig>;
+    initialize(envelopingConfig: Partial<EnvelopingConfig>, contractAddresses?: RelayingServicesAddresses): Promise<void>;
+    allowToken(tokenAddress: string, account?: string): Promise<string>;
+    isAllowedToken(tokenAddress: string): Promise<boolean>;
+    getAllowedTokens(): Promise<string[]>;
+    claim(commitmentReceipt: any): Promise<void>;
+    deploySmartWallet(smartWallet: SmartWallet, tokenAddress?: string, tokenAmount?: number): Promise<SmartWallet>;
+    generateSmartWallet(smartWalletIndex: number): Promise<SmartWallet>;
+    isSmartWalletDeployed(smartWalletAddress: string): Promise<boolean>;
+    relayTransaction(unsignedTx: TransactionConfig, smartWallet: SmartWallet, tokenAmount?: number, transactionDetails?: Partial<EnvelopingTransactionDetails>): Promise<TransactionReceipt>;
+    estimateMaxPossibleRelayGas(smartWallet: SmartWallet, relayWorker: string): Promise<string>;
+    estimateMaxPossibleRelayGasWithLinearFit(destinationContract: string, smartWalletAddress: string, tokenFees: string, abiEncodedTx: string, relayWorker: string): Promise<string>;
+    private _getAccountAddress;
+}

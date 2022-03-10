@@ -43,6 +43,8 @@ export class DefaultRelayingServices implements RelayingServices {
 
     private txId = 777;
 
+    // TODO: Change constructor to receive web3Instance | webProvider | rskHost
+    // we don't need the configuration here
     constructor({
         rskHost,
         account,
@@ -52,7 +54,8 @@ export class DefaultRelayingServices implements RelayingServices {
         this.web3Instance = web3Instance
             ? web3Instance
             : web3Provider
-            ? new Web3(web3Provider as any)
+            ? // TODO: remove any
+              new Web3(web3Provider as any)
             : new Web3(rskHost);
         this.account = account;
     }
@@ -338,11 +341,12 @@ export class DefaultRelayingServices implements RelayingServices {
         return await addressHasCode(this.web3Instance, smartWalletAddress);
     }
 
+    // TODO: we may want to change this method signature to use one single object to have a more flexible signature.
     async relayTransaction(
         unsignedTx: TransactionConfig,
         smartWallet: SmartWallet,
         tokenAmount?: number,
-        transactionDetails?: EnvelopingTransactionDetails
+        transactionDetails?: Partial<EnvelopingTransactionDetails>
     ): Promise<TransactionReceipt> {
         console.debug('relayTransaction Params', {
             unsignedTx,

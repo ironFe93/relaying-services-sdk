@@ -8,10 +8,10 @@
     "strictPropertyInitialization": false,
     "esModuleInterop": true,
     "resolveJsonModule": true,
-    "rootDir": "./",
+    "rootDir": "./src/",
     "outDir": "dist",
     "sourceMap": true,
-    "declaration": false,
+    "declaration": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
@@ -28,5 +28,9 @@
     ],
     "downlevelIteration": true,
     "allowSyntheticDefaultImports": true
-  }
+  },
+  "exclude": [
+    "test/**/*.ts",
+    "jest-log.config.ts"
+  ]
 }

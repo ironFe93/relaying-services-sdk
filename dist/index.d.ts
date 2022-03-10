@@ -3,16 +3,8 @@
  */
 import { TransactionConfig, TransactionReceipt } from 'web3-core';
 import { DefaultRelayingServices } from './sdk';
-import {
-    RelayingServicesAddresses,
-    RelayingServicesConfiguration,
-    SmartWallet
-} from './interfaces';
-import {
-    EnvelopingConfig,
-    EnvelopingTransactionDetails
-} from '@rsksmart/rif-relay-common';
-
+import { RelayingServicesAddresses, RelayingServicesConfiguration, SmartWallet } from './interfaces';
+import { EnvelopingConfig, EnvelopingTransactionDetails } from '@rsksmart/rif-relay-common';
 interface RelayingServices {
     /**
      * This operation initialize the realying service sdk.
@@ -20,11 +12,7 @@ interface RelayingServices {
      * @param envelopingConfig the partial enveloping configuration
      * @param contractAddresses the contract addresses optional
      */
-    initialize(
-        envelopingConfig: Partial<EnvelopingConfig>,
-        contractAddresses?: RelayingServicesAddresses
-    ): Promise<void>;
-
+    initialize(envelopingConfig: Partial<EnvelopingConfig>, contractAddresses?: RelayingServicesAddresses): Promise<void>;
     /**
      * This operation generates an smart wallet for the specified index.
      *
@@ -32,7 +20,6 @@ interface RelayingServices {
      * @returns the SmartWallet object containing the generated address
      */
     generateSmartWallet(smartWalletIndex: number): Promise<SmartWallet>;
-
     /**
      * Determine if the provided address represents a deployed SmartWallet
      *
@@ -40,7 +27,6 @@ interface RelayingServices {
      * @returns boolean true if the SmartWallet exists and is deployed, false otherwise
      */
     isSmartWalletDeployed(smartWalletAddress: string): Promise<boolean>;
-
     /**
      * It deploy an SmartWallet to make it usable to relay transactions. This operation can be subsidized if you
      * don't set the tokenAddress and tokenAmount
@@ -53,12 +39,7 @@ interface RelayingServices {
      * subsidized and the user will need to fund the smart wallet for non subsidized relay transactions.
      * @returns string that represents the transaction hash for the deploy transaction
      */
-    deploySmartWallet(
-        smartWallet: SmartWallet,
-        tokenAddress?: string,
-        tokenAmount?: number
-    ): Promise<SmartWallet>;
-
+    deploySmartWallet(smartWallet: SmartWallet, tokenAddress?: string, tokenAmount?: number): Promise<SmartWallet>;
     /**
      * It attempts to relay a transaction using the provided SmartWallet and optional token. If token is not specified
      * the relay will be subsidized.
@@ -68,13 +49,7 @@ interface RelayingServices {
      * @param tokenAmount the Optional tokenAmount to pay for the relaying of the transaction. If not set the transaction
      * will be subsidized.
      */
-    relayTransaction(
-        unsignedTx: TransactionConfig,
-        smartWallet: SmartWallet,
-        tokenAmount?: number,
-        transactionDetails?: Partial<EnvelopingTransactionDetails>
-    ): Promise<TransactionReceipt>;
-
+    relayTransaction(unsignedTx: TransactionConfig, smartWallet: SmartWallet, tokenAmount?: number, transactionDetails?: Partial<EnvelopingTransactionDetails>): Promise<TransactionReceipt>;
     /**
      * It checks if the provided tokenAddress is allowed by the rif relay verifiers.
      *
@@ -82,14 +57,12 @@ interface RelayingServices {
      * @returns boolean true if the tokenAddress is allowed by the verifiers or false otherwise
      */
     isAllowedToken(tokenAddress: string): Promise<boolean>;
-
     /**
      * Retrieves all the allowed tokens supported by the relaying system.
      *
      * @returns string[] a list of all the token addresses that are allowed by the relaying system.
      */
     getAllowedTokens(): Promise<string[]>;
-
     /**
      * It executes the allowance for a specified token using the relaying services contract owner account.
      *
@@ -97,7 +70,6 @@ interface RelayingServices {
      * @param contractsOwnerAccount the owner account of the relaying services contracts
      */
     allowToken(tokenAddress: string, account: string): Promise<string>;
-
     /**
      * It executes a claim for a commitmentReceipt, this is to penalize a
      * relay manager when it doesn't fulfil the commited transaction.
@@ -105,18 +77,13 @@ interface RelayingServices {
      * @param commitmentReceipt the commitment receipt of the commited transaction
      */
     claim(commitmentReceipt: any): Promise<void>;
-
     /**
      * It executes a estimate max possible relay gas to get a number value
      *
      * @param smartWallet address create the transaction details for forwarder transaction
      * @param relayWorker the realy worker contract address
      */
-    estimateMaxPossibleRelayGas(
-        SmartWallet: SmartWallet,
-        relayWorker: string
-    ): Promise<string>;
-
+    estimateMaxPossibleRelayGas(SmartWallet: SmartWallet, relayWorker: string): Promise<string>;
     /**
      * It executes a estimate max possible relay gas relay with linear fit to get a number value
      *
@@ -126,18 +93,6 @@ interface RelayingServices {
      * @param abiEncodedTx Abi encoding transaction details
      * @param relayWorker the realy worker contract address
      */
-    estimateMaxPossibleRelayGasWithLinearFit(
-        destinationContract: string,
-        smartWalletAddress: string,
-        tokenFees: string,
-        abiEncodedTx: string,
-        relayWorker: string
-    ): Promise<string>;
+    estimateMaxPossibleRelayGasWithLinearFit(destinationContract: string, smartWalletAddress: string, tokenFees: string, abiEncodedTx: string, relayWorker: string): Promise<string>;
 }
-
-export {
-    RelayingServices,
-    DefaultRelayingServices,
-    RelayingServicesConfiguration,
-    SmartWallet
-};
+export { RelayingServices, DefaultRelayingServices, RelayingServicesConfiguration, SmartWallet };

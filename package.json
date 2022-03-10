@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "This project contains the SDK of the relaying services system.",
   "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "scripts": {
     "build": "scripts/build",
     "dist": "scripts/dist",

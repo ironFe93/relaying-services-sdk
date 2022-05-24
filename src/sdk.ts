@@ -149,7 +149,6 @@ export class DefaultRelayingServices implements RelayingServices {
                 this.contracts.addresses.smartWalletRelayVerifier
             );
 
-            // double usage of try catch?
         try {
             const acceptToken =
                 smartWalletDeployVerifier.methods.acceptToken(tokenAddress);
@@ -251,7 +250,6 @@ export class DefaultRelayingServices implements RelayingServices {
             throw new Error('Smart Wallet already deployed');
         }
 
-        // this doesn't do anything
         if (tokenAddress) {
             const token = getContract(
                 this.web3Instance,
@@ -274,7 +272,7 @@ export class DefaultRelayingServices implements RelayingServices {
             'Deploying smart wallet for address',
             smartWallet.address
         );
-        //stuff is hardcoded
+        
         const txDetails = <EnvelopingTransactionDetails>{
             from: this._getAccountAddress(),
             to: ZERO_ADDRESS,
@@ -300,7 +298,6 @@ export class DefaultRelayingServices implements RelayingServices {
             transactionHash
         );
 
-        //reassignation of properties
         smartWallet.deployTransaction = transactionHash;
         smartWallet.deployed = true;
         smartWallet.tokenAddress = tokenAddress;
@@ -316,7 +313,6 @@ export class DefaultRelayingServices implements RelayingServices {
 
         const smartWalletFactory = this.contracts.getSmartWalletFactory();
 
-        //hardcoded params?
         const smartWalletAddress = await smartWalletFactory.methods
             .getSmartWalletAddress(
                 this._getAccountAddress(),

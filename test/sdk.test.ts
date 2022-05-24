@@ -13,7 +13,7 @@ import Expect = jest.Expect;
 
 declare const expect: Expect;
 
-describe('SDK', () => {
+describe('Deployed SDK tests', () => {
     let sdk: RelayingServices;
 
     beforeEach(async () => {
@@ -21,7 +21,7 @@ describe('SDK', () => {
         await sdk.initialize({});
     });
 
-    it('Claim', async () => {
+    it('Should perform a claim operation', async () => {
         try {
             await sdk.claim({});
             fail(
@@ -34,7 +34,7 @@ describe('SDK', () => {
         }
     });
 
-    it('Allow Token', async () => {
+    it('Should Allow a Token', async () => {
         try {
             const allowedToken = await sdk.allowToken(
                 MOCK_TOKEN_ADDRESS,
@@ -46,7 +46,7 @@ describe('SDK', () => {
         }
     });
 
-    it('Get Allow Token', async () => {
+    it('Should Get the Allowed Tokens', async () => {
         try {
             const allowTokens = await sdk.getAllowedTokens();
             expect(allowTokens.length).toBeGreaterThan(0);
@@ -56,7 +56,7 @@ describe('SDK', () => {
         }
     });
 
-    it('Is Allow Token', async () => {
+    it('Should return True if provided token is Allowed', async () => {
         try {
             const allowTokens = await sdk.isAllowedToken(MOCK_TOKEN_ADDRESS);
             expect(allowTokens).toBeTruthy();
@@ -65,7 +65,7 @@ describe('SDK', () => {
         }
     });
 
-    it('Smart Wallet', async () => {
+    it('Should fail when deploying a Smart Wallet', async () => {
         try {
             await sdk.deploySmartWallet(
                 {
@@ -75,13 +75,13 @@ describe('SDK', () => {
                 },
                 MOCK_TOKEN_ADDRESS
             );
-            fail('The small wallet this not already deployed');
+            fail('The smart wallet is already deployed');
         } catch (error: any) {
             expect(error.message).toBe('Smart Wallet already deployed');
         }
     });
 
-    it('Generate Smart Wallet', async () => {
+    it('Should Generate a Smart Wallet', async () => {
         const smallWalletIndex = 0;
         const smartWallet = await sdk.generateSmartWallet(smallWalletIndex);
         expect(smartWallet.deployed).toBeTruthy();
@@ -89,7 +89,7 @@ describe('SDK', () => {
         expect(smartWallet.index).toEqual(smallWalletIndex);
     });
 
-    it('Deployed Smart Wallet already deployed', async () => {
+    it('Should not let Deploy a Smart Wallet that is already deployed', async () => {
         try {
             await sdk.deploySmartWallet(
                 {
@@ -106,7 +106,7 @@ describe('SDK', () => {
         }
     });
 
-    it('Is Smart Wallet Deployed', async () => {
+    it('Should return true if Smart Wallet is Deployed', async () => {
         const deployed = await sdk.isSmartWalletDeployed(
             MOCK_SMART_WALLET_ADDRESS
         );
@@ -114,7 +114,7 @@ describe('SDK', () => {
     });
 });
 
-describe('SDK not deployed', () => {
+describe('SDK not deployed tests', () => {
     let sdk: RelayingServices;
 
     beforeEach(async () => {
@@ -126,14 +126,14 @@ describe('SDK not deployed', () => {
         await sdk.initialize({});
     });
 
-    it('Is Smart Wallet not deployed', async () => {
+    it('Should return False if Smart Wallet not deployed', async () => {
         const deployed = await sdk.isSmartWalletDeployed(
             MOCK_SMART_WALLET_ADDRESS
         );
         expect(deployed).toBeFalsy();
     });
 
-    it('Deploy Smart Wallet', async () => {
+    it('Should Deploy a Smart Wallet', async () => {
         const smartWallet: SmartWallet = await sdk.deploySmartWallet(
             {
                 address: MOCK_SMART_WALLET_ADDRESS,
@@ -149,7 +149,7 @@ describe('SDK not deployed', () => {
         expect(smartWallet.deployTransaction).toBe(MOCK_TRANSACTION_HASH);
     });
 
-    it('Relay Transaction', async () => {
+    it('Should Fail when relaying a Transaction', async () => {
         const transaction: TransactionConfig = {
             from: MOCK_ADDRESS,
             to: MOCK_CONTRACT_ADDRESS,

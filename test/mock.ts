@@ -190,7 +190,7 @@ export class MockRelayingServices extends DefaultRelayingServices {
             rskHost: '',
             account: <Account>{ address: MOCK_ADDRESS },
             envelopingConfig: {},
-            web3Instance: web3Instance ? web3Instance : (web3Mock as Web3)
+            web3Instance: web3Instance ?? web3Mock
         });
     }
 
@@ -201,10 +201,10 @@ export class MockRelayingServices extends DefaultRelayingServices {
         console.debug('Init Relaying Services Mock', {
             envelopingConfig,
             contractAddresses,
-            web3: this.web3Instance
+            web3: this['web3Instance']
         });
-        this.contracts = new MockContracts(this.web3Instance);
-        this.relayProvider = new MockRelayProvider() as any;
+        this['contracts'] = new MockContracts(this['web3Instance']);
+        this['relayProvider'] = new MockRelayProvider() as any;
         return Promise.resolve();
     }
 

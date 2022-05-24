@@ -33,13 +33,13 @@ import { Contracts } from './contracts';
 import { toBN } from 'web3-utils';
 
 export class DefaultRelayingServices implements RelayingServices {
-    protected readonly web3Instance: Web3;
+    private readonly web3Instance: Web3;
     private readonly account?: Account;
     private developmentAccounts: string[];
-    protected relayProvider: RelayProvider;
-    protected contracts: Contracts;
-    protected contractAddresses: RelayingServicesAddresses;
-    protected envelopingConfig: EnvelopingConfig;
+    private relayProvider: RelayProvider;
+    private contracts: Contracts;
+    private contractAddresses: RelayingServicesAddresses;
+    private envelopingConfig: EnvelopingConfig;
 
     private txId = 777;
 
@@ -149,6 +149,7 @@ export class DefaultRelayingServices implements RelayingServices {
                 this.contracts.addresses.smartWalletRelayVerifier
             );
 
+            // double usage of try catch?
         try {
             const acceptToken =
                 smartWalletDeployVerifier.methods.acceptToken(tokenAddress);
@@ -246,61 +247,64 @@ export class DefaultRelayingServices implements RelayingServices {
             smartWallet.address
         );
 
-        if (!smartWalletDeployed) {
-            if (tokenAddress) {
-                const token = getContract(
-                    this.web3Instance,
-                    ERC20Token.getAbi(),
-                    tokenAddress
-                );
-
-                const balance = await token.methods
-                    .balanceOf(smartWallet.address)
-                    .call();
-
-                if (balance <= 0) {
-                    console.warn(
-                        "Smart Wallet doesn't have funds so this will be a subsidized deploy."
-                    );
-                }
-            }
-
-            console.debug(
-                'Deploying smart wallet for address',
-                smartWallet.address
-            );
-            const txDetails = <EnvelopingTransactionDetails>{
-                from: this._getAccountAddress(),
-                to: ZERO_ADDRESS,
-                callVerifier:
-                    this.contracts.addresses.smartWalletDeployVerifier,
-                callForwarder: this.contracts.addresses.smartWalletFactory,
-                tokenContract: tokenAddress,
-                tokenAmount: tokenAmount.toString(),
-                data: '0x',
-                index: smartWallet.index.toString(),
-                recoverer: ZERO_ADDRESS,
-                isSmartWalletDeploy: true,
-                onlyPreferredRelays: true,
-                smartWalletAddress: smartWallet.address
-            };
-
-            const transactionHash = await this.relayProvider.deploySmartWallet(
-                txDetails
-            );
-
-            console.debug(
-                'Smart wallet successfully deployed',
-                transactionHash
-            );
-
-            smartWallet.deployTransaction = transactionHash;
-            smartWallet.deployed = true;
-            smartWallet.tokenAddress = tokenAddress;
-            return smartWallet;
-        } else {
+        if(smartWalletDeployed) {
             throw new Error('Smart Wallet already deployed');
         }
+
+        // this doesn't do anything
+        if (tokenAddress) {
+            const token = getContract(
+                this.web3Instance,
+                ERC20Token.getAbi(),
+                tokenAddress
+            );
+
+            const balance = await token.methods
+                .balanceOf(smartWallet.address)
+                .call();
+
+            if (balance <= 0) {
+                console.warn(
+                    "Smart Wallet doesn't have funds so this will be a subsidized deploy."
+                );
+            }
+        }
+
+        console.debug(
+            'Deploying smart wallet for address',
+            smartWallet.address
+        );
+        //stuff is hardcoded
+        const txDetails = <EnvelopingTransactionDetails>{
+            from: this._getAccountAddress(),
+            to: ZERO_ADDRESS,
+            callVerifier:
+                this.contracts.addresses.smartWalletDeployVerifier,
+            callForwarder: this.contracts.addresses.smartWalletFactory,
+            tokenContract: tokenAddress,
+            tokenAmount: tokenAmount.toString(),
+            data: '0x',
+            index: smartWallet.index.toString(),
+            recoverer: ZERO_ADDRESS,
+            isSmartWalletDeploy: true,
+            onlyPreferredRelays: true,
+            smartWalletAddress: smartWallet.address
+        };
+
+        const transactionHash = await this.relayProvider.deploySmartWallet(
+            txDetails
+        );
+
+        console.debug(
+            'Smart wallet successfully deployed',
+            transactionHash
+        );
+
+        //reassignation of properties
+        smartWallet.deployTransaction = transactionHash;
+        smartWallet.deployed = true;
+        smartWallet.tokenAddress = tokenAddress;
+        return smartWallet;
     }
 
     async generateSmartWallet(smartWalletIndex: number): Promise<SmartWallet> {
@@ -312,6 +316,7 @@ export class DefaultRelayingServices implements RelayingServices {
 
         const smartWalletFactory = this.contracts.getSmartWalletFactory();
 
+        //hardcoded params?
         const smartWalletAddress = await smartWalletFactory.methods
             .getSmartWalletAddress(
                 this._getAccountAddress(),
@@ -334,11 +339,11 @@ export class DefaultRelayingServices implements RelayingServices {
         };
     }
 
-    async isSmartWalletDeployed(smartWalletAddress: string): Promise<boolean> {
+    isSmartWalletDeployed(smartWalletAddress: string): Promise<boolean> {
         console.debug('isSmartWalletDeployed Params', {
             smartWalletAddress
         });
-        return await addressHasCode(this.web3Instance, smartWalletAddress);
+        return addressHasCode(this.web3Instance, smartWalletAddress);
     }
 
     // TODO: we may want to change this method signature to use one single object to have a more flexible signature.
@@ -355,58 +360,60 @@ export class DefaultRelayingServices implements RelayingServices {
             transactionDetails
         });
         console.debug('Checking if the wallet exists');
-        if (await addressHasCode(this.web3Instance, smartWallet.address)) {
-            const jsonRpcPayload = {
-                jsonrpc: '2.0',
-                id: ++this.txId,
-                method: 'eth_sendTransaction',
-                params: [
-                    {
-                        from: this._getAccountAddress(),
-                        to: smartWallet.tokenAddress,
-                        value: '0',
-                        relayHub: this.contracts.addresses.relayHub,
-                        callVerifier:
-                            this.contracts.addresses.smartWalletRelayVerifier,
-                        callForwarder: smartWallet.address,
-                        data: unsignedTx.data,
-                        tokenContract: smartWallet.tokenAddress,
-                        tokenAmount: await this.web3Instance.utils.toWei(
-                            tokenAmount.toString()
-                        ),
-                        onlyPreferredRelays: true,
-                        ...transactionDetails
-                    }
-                ]
-            };
-            const transactionReceipt: TransactionReceipt = await new Promise(
-                (resolve, reject) => {
-                    this.relayProvider._ethSendTransaction(
-                        jsonRpcPayload,
-                        async (error: Error, jsonrpc: any) => {
-                            if (error) {
-                                reject(error);
-                            }
-                            const recipient =
-                                await web3.eth.getTransactionReceipt(
-                                    jsonrpc.result
-                                );
-                            resolve(recipient);
-                        }
-                    );
-                }
-            );
 
-            if (!transactionReceipt.status) {
-                const errorMessage = 'Error relaying transaction';
-                console.debug(errorMessage, transactionReceipt);
-                throw new Error(errorMessage);
-            }
-            return transactionReceipt;
+        if(!await addressHasCode(this.web3Instance, smartWallet.address)){
+            throw new Error(
+                `Smart Wallet is not deployed or the address ${smartWallet.address} is not a smart wallet.`
+            );
         }
-        throw new Error(
-            `Smart Wallet is not deployed or the address ${smartWallet.address} is not a smart wallet.`
+
+        const jsonRpcPayload = {
+            jsonrpc: '2.0',
+            id: ++this.txId,
+            method: 'eth_sendTransaction',
+            params: [
+                {
+                    from: this._getAccountAddress(),
+                    to: smartWallet.tokenAddress,
+                    value: '0',
+                    relayHub: this.contracts.addresses.relayHub,
+                    callVerifier:
+                        this.contracts.addresses.smartWalletRelayVerifier,
+                    callForwarder: smartWallet.address,
+                    data: unsignedTx.data,
+                    tokenContract: smartWallet.tokenAddress,
+                    tokenAmount: await this.web3Instance.utils.toWei(
+                        tokenAmount.toString()
+                    ),
+                    onlyPreferredRelays: true,
+                    ...transactionDetails
+                }
+            ]
+        };
+        const transactionReceipt: TransactionReceipt = await new Promise(
+            (resolve, reject) => {
+                this.relayProvider._ethSendTransaction(
+                    jsonRpcPayload,
+                    async (error: Error, jsonrpc: any) => {
+                        if (error) {
+                            reject(error);
+                        }
+                        const recipient =
+                            await web3.eth.getTransactionReceipt(
+                                jsonrpc.result
+                            );
+                        resolve(recipient);
+                    }
+                );
+            }
         );
+
+        if (!transactionReceipt.status) {
+            const errorMessage = 'Error relaying transaction';
+            console.debug(errorMessage, transactionReceipt);
+            throw new Error(errorMessage);
+        }
+        return transactionReceipt;
     }
 
     async estimateMaxPossibleRelayGas(

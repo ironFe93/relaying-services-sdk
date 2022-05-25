@@ -2,8 +2,10 @@ import { RelayingServices } from './index';
 import {
     Account,
     HttpProvider,
+    IpcProvider,
     TransactionConfig,
-    TransactionReceipt
+    TransactionReceipt,
+    WebsocketProvider
 } from 'web3-core';
 import {
     EnvelopingConfig,
@@ -43,21 +45,8 @@ export class DefaultRelayingServices implements RelayingServices {
 
     private txId = 777;
 
-    // TODO: Change constructor to receive web3Instance | webProvider | rskHost
-    // we don't need the configuration here
-    constructor({
-        rskHost,
-        account,
-        web3Provider,
-        web3Instance
-    }: RelayingServicesConfiguration) {
-        this.web3Instance = web3Instance
-            ? web3Instance
-            : web3Provider
-            ? // TODO: remove any
-              new Web3(web3Provider as any)
-            : new Web3(rskHost);
-        this.account = account;
+    constructor(web3: Web3 | Web3Provider | string) {
+        this.web3Instance = (web3 instanceof Web3) ? web3 : new Web3(web3);
     }
 
     async configure(
@@ -250,24 +239,6 @@ export class DefaultRelayingServices implements RelayingServices {
             throw new Error('Smart Wallet already deployed');
         }
 
-        if (tokenAddress) {
-            const token = getContract(
-                this.web3Instance,
-                ERC20Token.getAbi(),
-                tokenAddress
-            );
-
-            const balance = await token.methods
-                .balanceOf(smartWallet.address)
-                .call();
-
-            if (balance <= 0) {
-                console.warn(
-                    "Smart Wallet doesn't have funds so this will be a subsidized deploy."
-                );
-            }
-        }
-
         console.debug(
             'Deploying smart wallet for address',
             smartWallet.address
@@ -386,6 +357,8 @@ export class DefaultRelayingServices implements RelayingServices {
                 }
             ]
         };
+
+        //we should return the transaction hash. let the user decide to wait.
         const transactionReceipt: TransactionReceipt = await new Promise(
             (resolve, reject) => {
                 this.relayProvider._ethSendTransaction(

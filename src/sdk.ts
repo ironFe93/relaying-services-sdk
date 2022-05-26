@@ -45,8 +45,9 @@ export class DefaultRelayingServices implements RelayingServices {
 
     private txId = 777;
 
-    constructor(web3: Web3 | Web3Provider | string) {
+    constructor(web3: Web3 | Web3Provider | string, account? : Account) {
         this.web3Instance = (web3 instanceof Web3) ? web3 : new Web3(web3);
+        this.account = account;
     }
 
     async configure(

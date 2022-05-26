@@ -186,12 +186,13 @@ export class MockRelayProvider {
 
 export class MockRelayingServices extends DefaultRelayingServices {
     constructor(web3Instance?: Web3) {
-        super({
-            rskHost: '',
-            account: <Account>{ address: MOCK_ADDRESS },
-            envelopingConfig: {},
-            web3Instance: web3Instance ?? web3Mock
-        });
+        const web3 = new Web3();
+        web3.eth = new Web3EthMock(DEFAULT_WEB3_MOCK_CONFIGURATION) as any;
+        web3.utils = new Web3UtilsMock(DEFAULT_WEB3_MOCK_CONFIGURATION) as any;
+        super(
+            web3Instance ?? web3,
+            <Account>{ address: MOCK_ADDRESS },
+        );
     }
 
     public async initialize(

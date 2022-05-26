@@ -1,3 +1,4 @@
+import Web3 from 'web3';
 import { TransactionConfig } from 'web3-core';
 import { RelayingServices, SmartWallet } from '../src';
 import {
@@ -8,7 +9,12 @@ import {
     MOCK_TOKEN_ADDRESS,
     MOCK_TRANSACTION_HASH
 } from './constants';
-import { MockRelayingServices, Web3Mock } from './mock';
+import {
+    MockRelayingServices,
+    Web3EthMock,
+    Web3Mock,
+    Web3UtilsMock
+} from './mock';
 import Expect = jest.Expect;
 
 declare const expect: Expect;
@@ -118,11 +124,15 @@ describe('SDK not deployed tests', () => {
     let sdk: RelayingServices;
 
     beforeEach(async () => {
-        sdk = new MockRelayingServices(
-            new Web3Mock({
-                getCodeEmpty: true
-            }) as any
-        );
+        const web3 = new Web3();
+        web3.eth = new Web3EthMock({
+            getCodeEmpty: true
+        }) as any;
+        web3.utils = new Web3UtilsMock({
+            getCodeEmpty: true
+        }) as any;
+
+        sdk = new MockRelayingServices(web3);
         await sdk.initialize({});
     });
 

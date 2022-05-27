@@ -2,10 +2,8 @@ import { RelayingServices } from './index';
 import {
     Account,
     HttpProvider,
-    IpcProvider,
     TransactionConfig,
     TransactionReceipt,
-    WebsocketProvider
 } from 'web3-core';
 import {
     EnvelopingConfig,
@@ -20,15 +18,12 @@ import Web3 from 'web3';
 import { DeployVerifier, RelayVerifier } from '@rsksmart/rif-relay-contracts';
 import {
     addressHasCode,
-    getContract,
     getRevertReason,
     mergeConfiguration
 } from './utils';
-import { ERC20Token } from './ERC20Token';
 import { ZERO_ADDRESS } from './constants';
 import {
     RelayingServicesAddresses,
-    RelayingServicesConfiguration,
     SmartWallet,
     SmartWalletContract,
     SmartWalletDeploymentOptions

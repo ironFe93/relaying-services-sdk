@@ -12,7 +12,6 @@ import {
 import {
     MockRelayingServices,
     Web3EthMock,
-    Web3Mock,
     Web3UtilsMock
 } from './mock';
 import Expect = jest.Expect;

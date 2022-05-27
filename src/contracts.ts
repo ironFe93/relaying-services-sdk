@@ -8,6 +8,7 @@ import {
     SmartWalletFactory
 } from '@rsksmart/rif-relay-contracts';
 import { ContractError } from './ContractError';
+import log from 'loglevel';
 
 export class Contracts {
     private web3Instance: Web3;
@@ -30,7 +31,7 @@ export class Contracts {
             contracts = getContractAddresses(chainId);
         } catch (error: any) {
             if (error instanceof ContractError) {
-                console.warn(error);
+                log.warn(error);
             } else {
                 throw error;
             }
@@ -53,7 +54,7 @@ export class Contracts {
                 DeployVerifier.abi,
                 this.addresses.smartWalletDeployVerifier
             );
-            console.debug('Contracts initialized correctly');
+            log.debug('Contracts initialized correctly');
         } catch (error: any) {
             throw new Error('Contracts fail to initialize: ' + error.message);
         }

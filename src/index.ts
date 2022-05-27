@@ -6,7 +6,9 @@ import { DefaultRelayingServices } from './sdk';
 import {
     RelayingServicesAddresses,
     RelayingServicesConfiguration,
-    SmartWallet
+    SmartWallet,
+    SmartWalletContract,
+    SmartWalletDeploymentOptions
 } from './interfaces';
 import {
     EnvelopingConfig,
@@ -31,7 +33,7 @@ interface RelayingServices {
      * @param smartWalletIndex the number of the smart wallet index, anything >= 0
      * @returns the SmartWallet object containing the generated address
      */
-    generateSmartWallet(smartWalletIndex: number): Promise<SmartWallet>;
+    generateSmartWallet(smartWalletIndex: number): Promise<SmartWalletContract>;
 
     /**
      * Determine if the provided address represents a deployed SmartWallet
@@ -54,9 +56,8 @@ interface RelayingServices {
      * @returns string that represents the transaction hash for the deploy transaction
      */
     deploySmartWallet(
-        smartWallet: SmartWallet,
-        tokenAddress?: string,
-        tokenAmount?: number
+        smartWalletContract: SmartWalletContract,
+        options?: SmartWalletDeploymentOptions
     ): Promise<SmartWallet>;
 
     /**

@@ -1,12 +1,23 @@
 import { Account } from 'web3-core';
 import { EnvelopingConfig, Web3Provider } from '@rsksmart/rif-relay-common';
 
-export interface SmartWallet {
+export interface SmartWalletContract {
     index: number;
     address: string;
-    deployed: boolean;
-    deployTransaction?: string;
-    tokenAddress?: string;
+}
+
+export interface SmartWallet {
+    contract: SmartWalletContract
+    deployTransaction: string;
+    tokenAddress: string;
+}
+
+export interface SmartWalletDeploymentOptions {
+    tokenAddress?: string,
+    tokenAmount?: number
+    recovererAddress?: string,
+    onlyPreferredRelays?: boolean,
+    
 }
 
 export interface RelayingServicesConfiguration {

@@ -29,10 +29,13 @@ import { ZERO_ADDRESS } from './constants';
 import {
     RelayingServicesAddresses,
     RelayingServicesConfiguration,
-    SmartWallet
+    SmartWallet,
+    SmartWalletContract,
+    SmartWalletDeploymentOptions
 } from './interfaces';
 import { Contracts } from './contracts';
 import { toBN } from 'web3-utils';
+import log, { LogLevelNumbers } from 'loglevel';
 
 export class DefaultRelayingServices implements RelayingServices {
     private readonly web3Instance: Web3;
@@ -79,7 +82,7 @@ export class DefaultRelayingServices implements RelayingServices {
                 relayHubAddress ?? this.contracts.addresses.relayHub;
             return resolvedConfig;
         } catch (error) {
-            console.log(error);
+            log.log(error);
         }
     }
 
@@ -88,6 +91,7 @@ export class DefaultRelayingServices implements RelayingServices {
         contractAddresses?: RelayingServicesAddresses
     ): Promise<void> {
         try {
+            this.setLogLevel();
             this.contracts = new Contracts(
                 this.web3Instance,
                 await this.web3Instance.eth.getChainId(),
@@ -113,14 +117,14 @@ export class DefaultRelayingServices implements RelayingServices {
             }
             this.web3Instance.setProvider(provider);
             this.relayProvider = provider;
-            console.debug('RelayingServicesSDK initialized correctly');
+            log.debug('RelayingServicesSDK initialized correctly');
         } catch (error) {
-            console.error('RelayingServicesSDK fail to initialize', error);
+            log.error('RelayingServicesSDK fail to initialize', error);
         }
     }
 
     async allowToken(tokenAddress: string, account?: string): Promise<string> {
-        console.debug('allowToken Params', {
+        log.debug('allowToken Params', {
             tokenAddress,
             account
         });
@@ -142,13 +146,13 @@ export class DefaultRelayingServices implements RelayingServices {
         try {
             const acceptToken =
                 smartWalletDeployVerifier.methods.acceptToken(tokenAddress);
-            console.log(acceptToken);
+            log.log(acceptToken);
             await acceptToken.send({ from: account });
         } catch (error: any) {
-            console.log('Error');
-            console.log(error);
+            log.log('Error');
+            log.log(error);
             const reason = await getRevertReason(error.receipt.transactionHash);
-            console.error(
+            log.error(
                 'Error adding token with address ' +
                     tokenAddress +
                     ' to allowed tokens on smart wallet deploy verifier',
@@ -161,9 +165,9 @@ export class DefaultRelayingServices implements RelayingServices {
                 .acceptToken(tokenAddress)
                 .send({ from: account });
         } catch (error: any) {
-            console.log(error);
+            log.log(error);
             const reason = await getRevertReason(error.receipt.transactionHash);
-            console.error(
+            log.error(
                 'Error adding token with address ' +
                     tokenAddress +
                     ' to allowed tokens on smart wallet relay verifier',
@@ -171,12 +175,12 @@ export class DefaultRelayingServices implements RelayingServices {
             );
             throw error;
         }
-        console.debug('Tokens allowed successfully!');
+        log.debug('Tokens allowed successfully!');
         return tokenAddress;
     }
 
     async isAllowedToken(tokenAddress: string): Promise<boolean> {
-        console.debug('isAllowedToken Params', {
+        log.debug('isAllowedToken Params', {
             tokenAddress
         });
         const relayVerifierContract =
@@ -211,7 +215,7 @@ export class DefaultRelayingServices implements RelayingServices {
     }
 
     async claim(commitmentReceipt: any): Promise<void> {
-        console.debug('claim Params', {
+        log.debug('claim Params', {
             commitmentReceipt
         });
         throw new Error(
@@ -220,68 +224,67 @@ export class DefaultRelayingServices implements RelayingServices {
     }
 
     async deploySmartWallet(
-        smartWallet: SmartWallet,
-        tokenAddress?: string,
-        tokenAmount?: number
+        contract: SmartWalletContract,
+        options?: SmartWalletDeploymentOptions,
     ): Promise<SmartWallet> {
-        console.debug('deploySmartWallet Params', {
-            smartWallet,
-            tokenAddress,
-            tokenAmount
+        // what happens if we don't specify a token address?
+        log.debug('deploySmartWallet Params', {
+            contract,
+            options,
         });
-        tokenAmount = tokenAmount ?? 0;
-        console.debug('Checking if the wallet already exists');
-        const smartWalletDeployed = await addressHasCode(
-            this.web3Instance,
-            smartWallet.address
-        );
+        const { address, index } = contract;
+        const { tokenAddress, tokenAmount, recovererAddress, onlyPreferredRelays } = options;
 
-        if(smartWalletDeployed) {
+        log.debug('Checking if the wallet already exists');
+        const isSmartWalletDeployed = await this.isSmartWalletDeployed(address);
+
+        if(isSmartWalletDeployed) {
             throw new Error('Smart Wallet already deployed');
         }
 
-        console.debug(
+        log.debug(
             'Deploying smart wallet for address',
-            smartWallet.address
+            address
         );
         
-        const txDetails = <EnvelopingTransactionDetails>{
+        const txDetails: EnvelopingTransactionDetails = {
             from: this._getAccountAddress(),
             to: ZERO_ADDRESS,
             callVerifier:
                 this.contracts.addresses.smartWalletDeployVerifier,
             callForwarder: this.contracts.addresses.smartWalletFactory,
             tokenContract: tokenAddress,
-            tokenAmount: tokenAmount.toString(),
+            tokenAmount: tokenAmount ? tokenAmount.toString() : '0',
             data: '0x',
-            index: smartWallet.index.toString(),
-            recoverer: ZERO_ADDRESS,
+            index: index.toString(),
+            recoverer: recovererAddress || ZERO_ADDRESS,
             isSmartWalletDeploy: true,
-            onlyPreferredRelays: true,
-            smartWalletAddress: smartWallet.address
+            onlyPreferredRelays: onlyPreferredRelays || true,
+            smartWalletAddress: address
         };
 
         const transactionHash = await this.relayProvider.deploySmartWallet(
             txDetails
         );
 
-        console.debug(
+        log.debug(
             'Smart wallet successfully deployed',
             transactionHash
         );
 
-        smartWallet.deployTransaction = transactionHash;
-        smartWallet.deployed = true;
-        smartWallet.tokenAddress = tokenAddress;
-        return smartWallet;
+        return {
+            deployTransaction: transactionHash,
+            tokenAddress,
+            contract
+        };
     }
 
-    async generateSmartWallet(smartWalletIndex: number): Promise<SmartWallet> {
-        console.debug('generateSmartWallet Params', {
+    async generateSmartWallet(smartWalletIndex: number): Promise<SmartWalletContract> {
+        log.debug('generateSmartWallet Params', {
             smartWalletIndex
         });
 
-        console.debug('Generating computed address for smart wallet');
+        log.debug('Generating computed address for smart wallet');
 
         const smartWalletFactory = this.contracts.getSmartWalletFactory();
 
@@ -293,22 +296,14 @@ export class DefaultRelayingServices implements RelayingServices {
             )
             .call();
 
-        console.debug('Checking if the wallet already exists');
-
-        const deployed = await addressHasCode(
-            this.web3Instance,
-            smartWalletAddress
-        );
-
         return {
             address: smartWalletAddress,
             index: smartWalletIndex,
-            deployed
         };
     }
 
     isSmartWalletDeployed(smartWalletAddress: string): Promise<boolean> {
-        console.debug('isSmartWalletDeployed Params', {
+        log.debug('isSmartWalletDeployed Params', {
             smartWalletAddress
         });
         return addressHasCode(this.web3Instance, smartWalletAddress);
@@ -321,17 +316,19 @@ export class DefaultRelayingServices implements RelayingServices {
         tokenAmount?: number,
         transactionDetails?: Partial<EnvelopingTransactionDetails>
     ): Promise<TransactionReceipt> {
-        console.debug('relayTransaction Params', {
+        log.debug('relayTransaction Params', {
             unsignedTx,
             smartWallet,
             tokenAmount,
             transactionDetails
         });
-        console.debug('Checking if the wallet exists');
+        log.debug('Checking if the wallet exists');
 
-        if(!await addressHasCode(this.web3Instance, smartWallet.address)){
+        const { contract: { address } } = smartWallet;
+
+        if(!await addressHasCode(this.web3Instance, address)){
             throw new Error(
-                `Smart Wallet is not deployed or the address ${smartWallet.address} is not a smart wallet.`
+                `Smart Wallet is not deployed or the address ${address} is not a smart wallet.`
             );
         }
 
@@ -347,7 +344,7 @@ export class DefaultRelayingServices implements RelayingServices {
                     relayHub: this.contracts.addresses.relayHub,
                     callVerifier:
                         this.contracts.addresses.smartWalletRelayVerifier,
-                    callForwarder: smartWallet.address,
+                    callForwarder: address,
                     data: unsignedTx.data,
                     tokenContract: smartWallet.tokenAddress,
                     tokenAmount: await this.web3Instance.utils.toWei(
@@ -380,7 +377,7 @@ export class DefaultRelayingServices implements RelayingServices {
 
         if (!transactionReceipt.status) {
             const errorMessage = 'Error relaying transaction';
-            console.debug(errorMessage, transactionReceipt);
+            log.debug(errorMessage, transactionReceipt);
             throw new Error(errorMessage);
         }
         return transactionReceipt;
@@ -390,7 +387,7 @@ export class DefaultRelayingServices implements RelayingServices {
         smartWallet: SmartWallet,
         relayWorker: string
     ): Promise<string> {
-        console.debug('estimateMaxPossibleRelayGas Params', {
+        log.debug('estimateMaxPossibleRelayGas Params', {
             smartWallet
         });
         const gasPrice = toBN(
@@ -406,12 +403,12 @@ export class DefaultRelayingServices implements RelayingServices {
             callVerifier: this.contracts.addresses.smartWalletRelayVerifier,
             callForwarder: this.contracts.addresses.smartWalletFactory,
             data: '0x',
-            index: smartWallet.index.toString(),
+            index: smartWallet.contract.index.toString(),
             tokenContract: this.contracts.addresses.testToken,
             tokenAmount: tokenAmount,
             onlyPreferredRelays: true,
             isSmartWalletDeploy: true,
-            smartWalletAddress: smartWallet.address,
+            smartWalletAddress: smartWallet.contract.address,
             recoverer: ZERO_ADDRESS.toString()
         };
         const maxPossibleGasValue =
@@ -431,7 +428,7 @@ export class DefaultRelayingServices implements RelayingServices {
         abiEncodedTx: string,
         relayWorker: string
     ): Promise<string> {
-        console.debug('estimateMaxPossibleRelayGasWithLinearFit Params', {
+        log.debug('estimateMaxPossibleRelayGasWithLinearFit Params', {
             destinationContract,
             smartWalletAddress,
             tokenFees,
@@ -470,5 +467,14 @@ export class DefaultRelayingServices implements RelayingServices {
         return this.account
             ? this.account.address
             : this.developmentAccounts[0];
+    }
+
+    private setLogLevel() {
+        const level = Number.parseInt(process.env.LOG_LEVEL) as LogLevelNumbers;
+        if(level > 5 || level < 0) {
+            log.warn('Unknown log level specified, using default log level');
+            return;
+        }
+        log.setLevel(level);
     }
 }

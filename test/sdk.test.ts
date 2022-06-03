@@ -1,6 +1,7 @@
 import Web3 from 'web3';
 import { TransactionConfig } from 'web3-core';
 import { RelayingServices, SmartWallet } from '../src';
+import { RelayingTransactionOptions } from '../src/interfaces';
 import {
     MOCK_ACCOUNT,
     MOCK_ADDRESS,
@@ -154,32 +155,38 @@ describe('SDK not deployed tests', () => {
                 tokenAddress: MOCK_TOKEN_ADDRESS
             }
         );
-        expect(smartWallet.contract.address).toBe(MOCK_SMART_WALLET_ADDRESS);
-        expect(smartWallet.contract.index).toBe(0);
+        expect(smartWallet.address).toBe(MOCK_SMART_WALLET_ADDRESS);
+        expect(smartWallet.index).toBe(0);
         expect(smartWallet.tokenAddress).toBe(MOCK_TOKEN_ADDRESS);
         expect(smartWallet.deployTransaction).toBe(MOCK_TRANSACTION_HASH);
     });
 
     it('Should fail when relaying a Transaction', async () => {
-        const transaction: TransactionConfig = {
+        const smartWallet: SmartWallet = {
+            address: MOCK_SMART_WALLET_ADDRESS,
+            index: 0,
+            deployTransaction: '0',
+            tokenAddress: '0'
+        };
+
+        const unsignedTx: TransactionConfig = {
             from: MOCK_ADDRESS,
             to: MOCK_CONTRACT_ADDRESS,
             value: 1
         };
-        const smartWallet: SmartWallet = {
-            contract: { 
-                address: MOCK_SMART_WALLET_ADDRESS,
-                index: 0,
-            },
-            deployTransaction: '0',
-            tokenAddress: '0'
+
+        const options: RelayingTransactionOptions = {
+            smartWallet,
+            unsignedTx,
+            tokenAmount: 0
         };
+
         try {
-            await sdk.relayTransaction(transaction, smartWallet, 0);
+            await sdk.relayTransaction(options);
             fail('Relay transaction should have failed.');
         } catch (error: any) {
             expect(error.message).toBe(
-                `Smart Wallet is not deployed or the address ${smartWallet.contract.address} is not a smart wallet.`
+                `Smart Wallet is not deployed or the address ${smartWallet.address} is not a smart wallet.`
             );
         }
     });

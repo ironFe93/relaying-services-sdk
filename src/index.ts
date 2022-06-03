@@ -1,13 +1,15 @@
 /**
  * It represents an SmartWallet, contains the index and the address of the Smart Wallet
  */
-import { TransactionConfig, TransactionReceipt } from 'web3-core';
+import { TransactionReceipt } from 'web3-core';
 import { DefaultRelayingServices } from './sdk';
 import {
+    RelayGasEstimationOptions,
     RelayingServicesAddresses,
     RelayingServicesConfiguration,
+    RelayingTransactionOptions,
     SmartWallet,
-    SmartWalletContract,
+    SmartWalletAddress,
     SmartWalletDeploymentOptions
 } from './interfaces';
 import {
@@ -33,7 +35,7 @@ interface RelayingServices {
      * @param smartWalletIndex the number of the smart wallet index, anything >= 0
      * @returns the SmartWallet object containing the generated address
      */
-    generateSmartWallet(smartWalletIndex: number): Promise<SmartWalletContract>;
+    generateSmartWallet(smartWalletIndex: number): Promise<SmartWalletAddress>;
 
     /**
      * Determine if the provided address represents a deployed SmartWallet
@@ -56,7 +58,7 @@ interface RelayingServices {
      * @returns string that represents the transaction hash for the deploy transaction
      */
     deploySmartWallet(
-        smartWalletContract: SmartWalletContract,
+        smartWalletAddress: SmartWalletAddress,
         options?: SmartWalletDeploymentOptions
     ): Promise<SmartWallet>;
 
@@ -69,12 +71,7 @@ interface RelayingServices {
      * @param tokenAmount the Optional tokenAmount to pay for the relaying of the transaction. If not set the transaction
      * will be subsidized.
      */
-    relayTransaction(
-        unsignedTx: TransactionConfig,
-        smartWallet: SmartWallet,
-        tokenAmount?: number,
-        transactionDetails?: Partial<EnvelopingTransactionDetails>
-    ): Promise<TransactionReceipt>;
+    relayTransaction(options: RelayingTransactionOptions): Promise<TransactionReceipt>;
 
     /**
      * It checks if the provided tokenAddress is allowed by the rif relay verifiers.
@@ -110,13 +107,13 @@ interface RelayingServices {
     /**
      * It executes a estimate max possible relay gas to get a number value
      *
-     * @param smartWallet address create the transaction details for forwarder transaction
+     * @param trxDetails details of the transaction to be used to calculate gas
      * @param relayWorker the realy worker contract address
      */
     estimateMaxPossibleRelayGas(
-        SmartWallet: SmartWallet,
+        trxDetails: EnvelopingTransactionDetails,
         relayWorker: string
-    ): Promise<string>;
+    ): Promise<number>;
 
     /**
      * It executes a estimate max possible relay gas relay with linear fit to get a number value
@@ -127,13 +124,7 @@ interface RelayingServices {
      * @param abiEncodedTx Abi encoding transaction details
      * @param relayWorker the realy worker contract address
      */
-    estimateMaxPossibleRelayGasWithLinearFit(
-        destinationContract: string,
-        smartWalletAddress: string,
-        tokenFees: string,
-        abiEncodedTx: string,
-        relayWorker: string
-    ): Promise<string>;
+    estimateMaxPossibleRelayGasWithLinearFit(options: RelayGasEstimationOptions): Promise<string>;
 }
 
 export {

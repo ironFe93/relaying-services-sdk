@@ -131,11 +131,13 @@ export class DefaultRelayingServices implements RelayingServices {
                 this.contracts.addresses.smartWalletRelayVerifier
             );
 
+            let deployVerifierCheckpoint;
         try {
-            const acceptToken =
+            const deployVerifierAcceptToken =
                 smartWalletDeployVerifier.methods.acceptToken(tokenAddress);
-            log.info(acceptToken);
-            await acceptToken.send({ from: account });
+            log.info(deployVerifierAcceptToken);
+            await deployVerifierAcceptToken.send({ from: account });
+            deployVerifierCheckpoint = true;
 
             await smartWalletRelayVerifier.methods
                 .acceptToken(tokenAddress)
@@ -143,10 +145,9 @@ export class DefaultRelayingServices implements RelayingServices {
         } catch (error: any) {
             log.error(error);
             const reason = await getRevertReason(error.receipt.transactionHash);
+            const errorSource = deployVerifierCheckpoint ? 'deploy' : 'relay';
             log.error(
-                'Error adding token with address ' +
-                    tokenAddress +
-                    ' to allowed tokens on smart wallet deploy verifier',
+                `Error adding token with address ${tokenAddress} to allowed tokens on smart wallet ${errorSource} verifier`,
                 reason
             );
             throw error;
@@ -290,7 +291,6 @@ export class DefaultRelayingServices implements RelayingServices {
         return addressHasCode(this.web3Instance, smartWalletAddress);
     }
 
-    // TODO: we may want to change this method signature to use one single object to have a more flexible signature.
     async relayTransaction(
         options: RelayingTransactionOptions
     ): Promise<TransactionReceipt> {

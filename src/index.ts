@@ -131,5 +131,8 @@ export {
     RelayingServices,
     DefaultRelayingServices,
     RelayingServicesConfiguration,
-    SmartWallet
+    SmartWallet,
+    RelayingTransactionOptions,
+    RelayGasEstimationOptions,
+    SmartWalletDeploymentOptions,
 };

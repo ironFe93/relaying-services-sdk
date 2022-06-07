@@ -95,4 +95,4 @@ interface RelayingServices {
      */
     estimateMaxPossibleRelayGasWithLinearFit(options: RelayGasEstimationOptions): Promise<string>;
 }
-export { RelayingServices, DefaultRelayingServices, RelayingServicesConfiguration, SmartWallet };
+export { RelayingServices, DefaultRelayingServices, RelayingServicesConfiguration, SmartWallet, RelayingTransactionOptions, RelayGasEstimationOptions, SmartWalletDeploymentOptions, };

@@ -43,7 +43,7 @@ export interface RelayingTransactionOptions {
     unsignedTx: TransactionConfig;
     smartWallet: SmartWallet;
     tokenAmount?: number;
-    transactionDetails?: EnvelopingTransactionDetails;
+    transactionDetails?: Partial<EnvelopingTransactionDetails>;
     value?: number;
     onlyPreferredRelays?: boolean;
 }

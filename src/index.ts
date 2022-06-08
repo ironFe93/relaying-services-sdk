@@ -14,7 +14,6 @@ import {
 } from './interfaces';
 import {
     EnvelopingConfig,
-    EnvelopingTransactionDetails
 } from '@rsksmart/rif-relay-common';
 
 interface RelayingServices {

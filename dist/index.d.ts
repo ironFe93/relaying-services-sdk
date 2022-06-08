@@ -4,7 +4,7 @@
 import { TransactionReceipt } from 'web3-core';
 import { DefaultRelayingServices } from './sdk';
 import { RelayGasEstimationOptions, RelayingServicesAddresses, RelayingServicesConfiguration, RelayingTransactionOptions, SmartWallet, SmartWalletAddress, SmartWalletDeploymentOptions } from './interfaces';
-import { EnvelopingConfig, EnvelopingTransactionDetails } from '@rsksmart/rif-relay-common';
+import { EnvelopingConfig } from '@rsksmart/rif-relay-common';
 interface RelayingServices {
     /**
      * This operation initialize the realying service sdk.
@@ -83,7 +83,7 @@ interface RelayingServices {
      * @param trxDetails details of the transaction to be used to calculate gas
      * @param relayWorker the realy worker contract address
      */
-    estimateMaxPossibleRelayGas(trxDetails: EnvelopingTransactionDetails, relayWorker: string): Promise<number>;
+    estimateMaxPossibleRelayGas(options: RelayGasEstimationOptions): Promise<string>;
     /**
      * It executes a estimate max possible relay gas relay with linear fit to get a number value
      *

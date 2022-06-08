@@ -1,6 +1,6 @@
 import { RelayingServices } from './index';
 import { Account, TransactionReceipt } from 'web3-core';
-import { EnvelopingConfig, EnvelopingTransactionDetails, Web3Provider } from '@rsksmart/rif-relay-common';
+import { EnvelopingConfig, Web3Provider } from '@rsksmart/rif-relay-common';
 import Web3 from 'web3';
 import { RelayGasEstimationOptions, RelayingServicesAddresses, RelayingTransactionOptions, SmartWallet, SmartWalletAddress, SmartWalletDeploymentOptions } from './interfaces';
 export declare class DefaultRelayingServices implements RelayingServices {
@@ -23,7 +23,7 @@ export declare class DefaultRelayingServices implements RelayingServices {
     generateSmartWallet(smartWalletIndex: number): Promise<SmartWalletAddress>;
     isSmartWalletDeployed(smartWalletAddress: string): Promise<boolean>;
     relayTransaction(options: RelayingTransactionOptions): Promise<TransactionReceipt>;
-    estimateMaxPossibleRelayGas(trxDetails: EnvelopingTransactionDetails, relayWorker: string): Promise<number>;
+    estimateMaxPossibleRelayGas(options: RelayGasEstimationOptions): Promise<string>;
     estimateMaxPossibleRelayGasWithLinearFit(options: RelayGasEstimationOptions): Promise<string>;
     private _getAccountAddress;
     private setLogLevel;

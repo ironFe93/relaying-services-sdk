@@ -368,33 +368,50 @@ export class DefaultRelayingServices implements RelayingServices {
     }
 
     async estimateMaxPossibleRelayGas(
-        trxDetails: EnvelopingTransactionDetails,
-        relayWorker: string
+        options: RelayGasEstimationOptions
     ) {
-        const relayClient = this.relayProvider.relayClient;
+        const {
+            destinationContract,
+            smartWalletAddress,
+            tokenFees,
+            abiEncodedTx,
+            relayWorker
+        } = options;
 
-        const txDetailsClone = {
-            ...trxDetails
+        const relayClient = this.relayProvider.relayClient;
+        const tokenAmount = await this.web3Instance.utils.toWei(tokenFees);
+
+        const trxDetails: EnvelopingTransactionDetails = {
+            from: this._getAccountAddress(),
+            to: destinationContract,
+            value: '0',
+            relayHub: this.contracts.addresses.relayHub,
+            callVerifier: this.contracts.addresses.smartWalletRelayVerifier,
+            callForwarder: smartWalletAddress,
+            data: abiEncodedTx,
+            tokenContract: this.contracts.addresses.testToken,
+            tokenAmount: tokenAmount.toString(),
+            onlyPreferredRelays: true
         };
 
         const internalCallCost = await relayClient.getInternalCallCost(
-            relayClient.getEstimateGasParams(txDetailsClone)
+            relayClient.getEstimateGasParams(trxDetails)
         );
-        txDetailsClone.gas = toHex(internalCallCost);
+        trxDetails.gas = toHex(internalCallCost);
 
         const tokenGas = (
             await relayClient.estimateTokenTransferGas(
-                txDetailsClone,
+                trxDetails,
                 relayWorker
             )
         ).toString();
-        txDetailsClone.tokenGas = tokenGas;
+        trxDetails.tokenGas = tokenGas;
         const maxPossibleGasValue =
             await relayClient.estimateMaxPossibleRelayGas(
-                txDetailsClone,
+                trxDetails,
                 relayWorker
             );
-        return maxPossibleGasValue;
+        return maxPossibleGasValue.toString();
     }
 
     async estimateMaxPossibleRelayGasWithLinearFit(

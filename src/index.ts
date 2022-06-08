@@ -111,9 +111,8 @@ interface RelayingServices {
      * @param relayWorker the realy worker contract address
      */
     estimateMaxPossibleRelayGas(
-        trxDetails: EnvelopingTransactionDetails,
-        relayWorker: string
-    ): Promise<number>;
+        options: RelayGasEstimationOptions
+    ): Promise<string>;
 
     /**
      * It executes a estimate max possible relay gas relay with linear fit to get a number value

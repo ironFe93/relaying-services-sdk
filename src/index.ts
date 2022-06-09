@@ -9,7 +9,6 @@ import {
     RelayingServicesConfiguration,
     RelayingTransactionOptions,
     SmartWallet,
-    SmartWalletAddress,
     SmartWalletDeploymentOptions
 } from './interfaces';
 import { EnvelopingConfig } from '@rsksmart/rif-relay-common';
@@ -32,7 +31,7 @@ interface RelayingServices {
      * @param smartWalletIndex the number of the smart wallet index, anything >= 0
      * @returns the SmartWallet object containing the generated address
      */
-    generateSmartWallet(smartWalletIndex: number): Promise<SmartWalletAddress>;
+    generateSmartWallet(smartWalletIndex: number): Promise<SmartWallet>;
 
     /**
      * Determine if the provided address represents a deployed SmartWallet
@@ -55,7 +54,7 @@ interface RelayingServices {
      * @returns string that represents the transaction hash for the deploy transaction
      */
     deploySmartWallet(
-        smartWalletAddress: SmartWalletAddress,
+        smartWallet: SmartWallet,
         options?: SmartWalletDeploymentOptions
     ): Promise<SmartWallet>;
 

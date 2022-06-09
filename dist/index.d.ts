@@ -3,7 +3,7 @@
  */
 import { TransactionReceipt } from 'web3-core';
 import { DefaultRelayingServices } from './sdk';
-import { RelayGasEstimationOptions, RelayingServicesAddresses, RelayingServicesConfiguration, RelayingTransactionOptions, SmartWallet, SmartWalletAddress, SmartWalletDeploymentOptions } from './interfaces';
+import { RelayGasEstimationOptions, RelayingServicesAddresses, RelayingServicesConfiguration, RelayingTransactionOptions, SmartWallet, SmartWalletDeploymentOptions } from './interfaces';
 import { EnvelopingConfig } from '@rsksmart/rif-relay-common';
 interface RelayingServices {
     /**
@@ -19,7 +19,7 @@ interface RelayingServices {
      * @param smartWalletIndex the number of the smart wallet index, anything >= 0
      * @returns the SmartWallet object containing the generated address
      */
-    generateSmartWallet(smartWalletIndex: number): Promise<SmartWalletAddress>;
+    generateSmartWallet(smartWalletIndex: number): Promise<SmartWallet>;
     /**
      * Determine if the provided address represents a deployed SmartWallet
      *
@@ -39,7 +39,7 @@ interface RelayingServices {
      * subsidized and the user will need to fund the smart wallet for non subsidized relay transactions.
      * @returns string that represents the transaction hash for the deploy transaction
      */
-    deploySmartWallet(smartWalletAddress: SmartWalletAddress, options?: SmartWalletDeploymentOptions): Promise<SmartWallet>;
+    deploySmartWallet(smartWallet: SmartWallet, options?: SmartWalletDeploymentOptions): Promise<SmartWallet>;
     /**
      * It attempts to relay a transaction using the provided SmartWallet and optional token. If token is not specified
      * the relay will be subsidized.
@@ -95,4 +95,4 @@ interface RelayingServices {
      */
     estimateMaxPossibleRelayGasWithLinearFit(options: RelayGasEstimationOptions): Promise<string>;
 }
-export { RelayingServices, DefaultRelayingServices, RelayingServicesConfiguration, SmartWallet, RelayingTransactionOptions, RelayGasEstimationOptions, SmartWalletDeploymentOptions, };
+export { RelayingServices, DefaultRelayingServices, RelayingServicesConfiguration, SmartWallet, RelayingTransactionOptions, RelayGasEstimationOptions, SmartWalletDeploymentOptions };

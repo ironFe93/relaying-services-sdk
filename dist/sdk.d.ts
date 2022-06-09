@@ -2,7 +2,7 @@ import { RelayingServices } from './index';
 import { Account, TransactionReceipt } from 'web3-core';
 import { EnvelopingConfig, Web3Provider } from '@rsksmart/rif-relay-common';
 import Web3 from 'web3';
-import { RelayGasEstimationOptions, RelayingServicesAddresses, RelayingTransactionOptions, SmartWallet, SmartWalletAddress, SmartWalletDeploymentOptions } from './interfaces';
+import { RelayGasEstimationOptions, RelayingServicesAddresses, RelayingTransactionOptions, SmartWallet, SmartWalletDeploymentOptions } from './interfaces';
 export declare class DefaultRelayingServices implements RelayingServices {
     private readonly web3Instance;
     private readonly account?;
@@ -19,8 +19,8 @@ export declare class DefaultRelayingServices implements RelayingServices {
     isAllowedToken(tokenAddress: string): Promise<boolean>;
     getAllowedTokens(): Promise<string[]>;
     claim(commitmentReceipt: any): Promise<void>;
-    deploySmartWallet(walletAddress: SmartWalletAddress, options?: SmartWalletDeploymentOptions): Promise<SmartWallet>;
-    generateSmartWallet(smartWalletIndex: number): Promise<SmartWalletAddress>;
+    deploySmartWallet(smartWallet: SmartWallet, options?: SmartWalletDeploymentOptions): Promise<SmartWallet>;
+    generateSmartWallet(smartWalletIndex: number): Promise<SmartWallet>;
     isSmartWalletDeployed(smartWalletAddress: string): Promise<boolean>;
     relayTransaction(options: RelayingTransactionOptions): Promise<TransactionReceipt>;
     estimateMaxPossibleRelayGas(options: RelayGasEstimationOptions): Promise<string>;

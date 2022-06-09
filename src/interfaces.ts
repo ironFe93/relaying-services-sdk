@@ -4,8 +4,6 @@ import { EnvelopingConfig, EnvelopingTransactionDetails, Web3Provider } from '@r
 export interface SmartWalletAddress {
     index: number;
     address: string;
-    balance?: string;
-    rbtcBalance?: string;
 }
 
 export interface SmartWallet extends SmartWalletAddress{

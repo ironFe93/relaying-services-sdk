@@ -12,9 +12,7 @@ import {
     SmartWalletAddress,
     SmartWalletDeploymentOptions
 } from './interfaces';
-import {
-    EnvelopingConfig,
-} from '@rsksmart/rif-relay-common';
+import { EnvelopingConfig } from '@rsksmart/rif-relay-common';
 
 interface RelayingServices {
     /**
@@ -70,7 +68,9 @@ interface RelayingServices {
      * @param tokenAmount the Optional tokenAmount to pay for the relaying of the transaction. If not set the transaction
      * will be subsidized.
      */
-    relayTransaction(options: RelayingTransactionOptions): Promise<TransactionReceipt>;
+    relayTransaction(
+        options: RelayingTransactionOptions
+    ): Promise<TransactionReceipt>;
 
     /**
      * It checks if the provided tokenAddress is allowed by the rif relay verifiers.
@@ -122,7 +122,9 @@ interface RelayingServices {
      * @param abiEncodedTx Abi encoding transaction details
      * @param relayWorker the realy worker contract address
      */
-    estimateMaxPossibleRelayGasWithLinearFit(options: RelayGasEstimationOptions): Promise<string>;
+    estimateMaxPossibleRelayGasWithLinearFit(
+        options: RelayGasEstimationOptions
+    ): Promise<string>;
 }
 
 export {
@@ -132,5 +134,5 @@ export {
     SmartWallet,
     RelayingTransactionOptions,
     RelayGasEstimationOptions,
-    SmartWalletDeploymentOptions,
+    SmartWalletDeploymentOptions
 };

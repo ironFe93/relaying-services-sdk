@@ -10,11 +10,7 @@ import {
     MOCK_TOKEN_ADDRESS,
     MOCK_TRANSACTION_HASH
 } from './constants';
-import {
-    MockRelayingServices,
-    Web3EthMock,
-    Web3UtilsMock
-} from './mock';
+import { MockRelayingServices, Web3EthMock, Web3UtilsMock } from './mock';
 import Expect = jest.Expect;
 
 declare const expect: Expect;
@@ -76,12 +72,11 @@ describe('Deployed SDK tests', () => {
             await sdk.deploySmartWallet(
                 {
                     address: MOCK_SMART_WALLET_ADDRESS,
-                    index: 0,
+                    index: 0
                 },
                 {
                     tokenAddress: MOCK_TOKEN_ADDRESS
                 }
-                
             );
             fail('The smart wallet is already deployed');
         } catch (error: any) {
@@ -101,7 +96,7 @@ describe('Deployed SDK tests', () => {
             await sdk.deploySmartWallet(
                 {
                     address: MOCK_SMART_WALLET_ADDRESS,
-                    index: 0,
+                    index: 0
                 },
                 {
                     tokenAddress: MOCK_TOKEN_ADDRESS,
@@ -149,7 +144,7 @@ describe('SDK not deployed tests', () => {
         const smartWallet: SmartWallet = await sdk.deploySmartWallet(
             {
                 address: MOCK_SMART_WALLET_ADDRESS,
-                index: 0,
+                index: 0
             },
             {
                 tokenAddress: MOCK_TOKEN_ADDRESS
@@ -157,16 +152,17 @@ describe('SDK not deployed tests', () => {
         );
         expect(smartWallet.address).toBe(MOCK_SMART_WALLET_ADDRESS);
         expect(smartWallet.index).toBe(0);
-        expect(smartWallet.tokenAddress).toBe(MOCK_TOKEN_ADDRESS);
-        expect(smartWallet.deployTransaction).toBe(MOCK_TRANSACTION_HASH);
+        expect(smartWallet.deployment.tokenAddress).toBe(MOCK_TOKEN_ADDRESS);
+        expect(smartWallet.deployment.deployTransaction).toBe(
+            MOCK_TRANSACTION_HASH
+        );
     });
 
     it('Should fail when relaying a Transaction', async () => {
         const smartWallet: SmartWallet = {
             address: MOCK_SMART_WALLET_ADDRESS,
             index: 0,
-            deployTransaction: '0',
-            tokenAddress: '0'
+            deployment: { deployTransaction: '0', tokenAddress: '0' }
         };
 
         const unsignedTx: TransactionConfig = {

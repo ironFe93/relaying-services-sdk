@@ -1,23 +1,28 @@
 import { Account, TransactionConfig } from 'web3-core';
-import { EnvelopingConfig, EnvelopingTransactionDetails, Web3Provider } from '@rsksmart/rif-relay-common';
+import {
+    EnvelopingConfig,
+    EnvelopingTransactionDetails,
+    Web3Provider
+} from '@rsksmart/rif-relay-common';
 
-export interface SmartWalletAddress {
+export interface SmartWallet {
     index: number;
     address: string;
+    deployment?: SmartWalletDeployment;
 }
 
-export interface SmartWallet extends SmartWalletAddress{
+export interface SmartWalletDeployment {
     deployTransaction: string;
     tokenAddress: string;
 }
 
 export interface SmartWalletDeploymentOptions {
-    tokenAddress?: string,
-    tokenAmount?: number
-    recovererAddress?: string,
-    onlyPreferredRelays?: boolean,
-    callVerifier?: string,
-    callForwarder?: string,
+    tokenAddress?: string;
+    tokenAmount?: number;
+    recovererAddress?: string;
+    onlyPreferredRelays?: boolean;
+    callVerifier?: string;
+    callForwarder?: string;
 }
 
 export interface RelayingServicesConfiguration {
@@ -45,18 +50,18 @@ export interface RelayingServicesAddresses {
 }
 
 export interface RelayingTransactionOptions {
-    unsignedTx: TransactionConfig,
-    smartWallet: SmartWallet,
-    tokenAmount?: number,
-    transactionDetails?: Partial<EnvelopingTransactionDetails>,
-    value?: number,
-    onlyPreferredRelays?: boolean
+    unsignedTx: TransactionConfig;
+    smartWallet: SmartWallet;
+    tokenAmount?: number;
+    transactionDetails?: Partial<EnvelopingTransactionDetails>;
+    value?: number;
+    onlyPreferredRelays?: boolean;
 }
 
 export interface RelayGasEstimationOptions {
-    destinationContract: string,
-    smartWalletAddress: string,
-    tokenFees: string,
-    abiEncodedTx: string,
-    relayWorker: string
+    destinationContract: string;
+    smartWalletAddress: string;
+    tokenFees: string;
+    abiEncodedTx: string;
+    relayWorker: string;
 }

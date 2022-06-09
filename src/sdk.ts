@@ -18,7 +18,7 @@ import {
     RelayingServicesAddresses,
     RelayingTransactionOptions,
     SmartWallet,
-    SmartWalletAddress,
+    SmartWalletDeployment,
     SmartWalletDeploymentOptions
 } from './interfaces';
 import { Contracts } from './contracts';
@@ -131,7 +131,7 @@ export class DefaultRelayingServices implements RelayingServices {
                 this.contracts.addresses.smartWalletRelayVerifier
             );
 
-            let deployVerifierCheckpoint;
+        let deployVerifierCheckpoint;
         try {
             const deployVerifierAcceptToken =
                 smartWalletDeployVerifier.methods.acceptToken(tokenAddress);
@@ -201,14 +201,14 @@ export class DefaultRelayingServices implements RelayingServices {
     }
 
     async deploySmartWallet(
-        walletAddress: SmartWalletAddress,
+        smartWallet: SmartWallet,
         options?: SmartWalletDeploymentOptions
     ): Promise<SmartWallet> {
         log.debug('deploySmartWallet Params', {
-            walletAddress,
+            smartWallet,
             options
         });
-        const { address, index } = walletAddress;
+        const { address, index } = smartWallet;
         const {
             tokenAddress,
             tokenAmount,
@@ -252,16 +252,16 @@ export class DefaultRelayingServices implements RelayingServices {
         log.debug('Smart wallet successfully deployed', transactionHash);
 
         return {
-            deployTransaction: transactionHash,
-            tokenAddress,
+            deployment: {
+                deployTransaction: transactionHash,
+                tokenAddress
+            },
             address,
             index
         };
     }
 
-    async generateSmartWallet(
-        smartWalletIndex: number
-    ): Promise<SmartWalletAddress> {
+    async generateSmartWallet(smartWalletIndex: number): Promise<SmartWallet> {
         log.debug('generateSmartWallet Params', {
             smartWalletIndex
         });
@@ -310,8 +310,9 @@ export class DefaultRelayingServices implements RelayingServices {
         log.debug('Checking if the wallet exists');
 
         const { address } = smartWallet;
+        const isSmartWalletDeployed = await this.isSmartWalletDeployed(address);
 
-        if (!(await addressHasCode(this.web3Instance, address))) {
+        if (!isSmartWalletDeployed) {
             throw new Error(
                 `Smart Wallet is not deployed or the address ${address} is not a smart wallet.`
             );
@@ -324,14 +325,14 @@ export class DefaultRelayingServices implements RelayingServices {
             params: [
                 {
                     from: this._getAccountAddress(),
-                    to: smartWallet.tokenAddress,
+                    to: smartWallet.deployment.tokenAddress,
                     value: value ? value.toString() : '0',
                     relayHub: this.contracts.addresses.relayHub,
                     callVerifier:
                         this.contracts.addresses.smartWalletRelayVerifier,
                     callForwarder: address,
                     data: unsignedTx.data,
-                    tokenContract: smartWallet.tokenAddress,
+                    tokenContract: smartWallet.deployment.tokenAddress,
                     tokenAmount: await this.web3Instance.utils.toWei(
                         tokenAmount ? tokenAmount.toString() : '0'
                     ),
@@ -367,9 +368,7 @@ export class DefaultRelayingServices implements RelayingServices {
         return transactionReceipt;
     }
 
-    async estimateMaxPossibleRelayGas(
-        options: RelayGasEstimationOptions
-    ) {
+    async estimateMaxPossibleRelayGas(options: RelayGasEstimationOptions) {
         const {
             destinationContract,
             smartWalletAddress,
@@ -400,10 +399,7 @@ export class DefaultRelayingServices implements RelayingServices {
         trxDetails.gas = toHex(internalCallCost);
 
         const tokenGas = (
-            await relayClient.estimateTokenTransferGas(
-                trxDetails,
-                relayWorker
-            )
+            await relayClient.estimateTokenTransferGas(trxDetails, relayWorker)
         ).toString();
         trxDetails.tokenGas = tokenGas;
         const maxPossibleGasValue =

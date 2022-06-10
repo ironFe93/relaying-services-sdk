@@ -54,4 +54,8 @@ export interface RelayGasEstimationOptions {
     tokenFees: string;
     abiEncodedTx: string;
     relayWorker: string;
+    tokenAddress?: string;
+    onlyPreferredRelays?: boolean;
+    callVerifier?: string;
+    callForwarder?: string;
 }

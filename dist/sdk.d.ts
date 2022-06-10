@@ -14,7 +14,9 @@ export declare class DefaultRelayingServices implements RelayingServices {
     private txId;
     constructor(web3: Web3 | Web3Provider | string, account?: Account);
     configure(envelopingConfig: Partial<EnvelopingConfig>): Promise<EnvelopingConfig>;
-    initialize(envelopingConfig: Partial<EnvelopingConfig>, contractAddresses?: RelayingServicesAddresses): Promise<void>;
+    initialize(envelopingConfig: Partial<EnvelopingConfig>, contractAddresses?: RelayingServicesAddresses, opts?: {
+        loglevel: number;
+    }): Promise<void>;
     allowToken(tokenAddress: string, account?: string): Promise<string>;
     isAllowedToken(tokenAddress: string): Promise<boolean>;
     getAllowedTokens(): Promise<string[]>;

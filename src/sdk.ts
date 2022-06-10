@@ -18,7 +18,6 @@ import {
     RelayingServicesAddresses,
     RelayingTransactionOptions,
     SmartWallet,
-    SmartWalletDeployment,
     SmartWalletDeploymentOptions
 } from './interfaces';
 import { Contracts } from './contracts';
@@ -76,10 +75,11 @@ export class DefaultRelayingServices implements RelayingServices {
 
     async initialize(
         envelopingConfig: Partial<EnvelopingConfig>,
-        contractAddresses?: RelayingServicesAddresses
+        contractAddresses?: RelayingServicesAddresses,
+        opts?: { loglevel: number }
     ): Promise<void> {
         try {
-            this.setLogLevel();
+            this.setLogLevel(opts.loglevel);
             this.contracts = new Contracts(
                 this.web3Instance,
                 await this.web3Instance.eth.getChainId(),
@@ -456,12 +456,12 @@ export class DefaultRelayingServices implements RelayingServices {
             : this.developmentAccounts[0];
     }
 
-    private setLogLevel() {
-        const level = Number.parseInt(process.env.LOG_LEVEL) as LogLevelNumbers;
-        if (level > 5 || level < 0) {
+    private setLogLevel(loglevel?: number) {
+        const level = loglevel ?? Number.parseInt(process.env.LOG_LEVEL);
+        if (level > 5 || level < 0 || !level) {
             console.log('Unknown log level specified, using default log level');
             return;
         }
-        log.setLevel(level);
+        log.setLevel(level as LogLevelNumbers);
     }
 }

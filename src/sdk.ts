@@ -278,9 +278,17 @@ export class DefaultRelayingServices implements RelayingServices {
             )
             .call();
 
+        console.debug('Checking if the wallet already exists');
+
+        const deployed = await addressHasCode(
+            this.web3Instance,
+            smartWalletAddress
+        );
+
         return {
             address: smartWalletAddress,
-            index: smartWalletIndex
+            index: smartWalletIndex,
+            deployed
         };
     }
 

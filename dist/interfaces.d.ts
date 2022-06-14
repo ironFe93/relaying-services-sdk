@@ -4,6 +4,7 @@ import { EnvelopingConfig, EnvelopingTransactionDetails, Web3Provider } from '@r
 export interface SmartWallet {
     index: number;
     address: string;
+    deployed?: boolean;
     deployment?: SmartWalletDeployment;
 }
 export interface SmartWalletDeployment {

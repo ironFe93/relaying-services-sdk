@@ -386,6 +386,7 @@ export class DefaultRelayingServices implements RelayingServices {
             tokenAddress,
             onlyPreferredRelays,
             callVerifier,
+            isSmartWalletDeploy,
         } = options;
 
         const relayClient = this.relayProvider.relayClient;
@@ -401,7 +402,8 @@ export class DefaultRelayingServices implements RelayingServices {
             data: abiEncodedTx,
             tokenContract: tokenAddress || this.contracts.addresses.testToken,
             tokenAmount: tokenAmount.toString(),
-            onlyPreferredRelays: onlyPreferredRelays ?? true
+            onlyPreferredRelays: onlyPreferredRelays ?? true,
+            isSmartWalletDeploy
         };
 
         const internalCallCost = await relayClient.getInternalCallCost(trxDetails);

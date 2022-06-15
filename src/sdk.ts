@@ -403,7 +403,8 @@ export class DefaultRelayingServices implements RelayingServices {
             tokenContract: tokenAddress || this.contracts.addresses.testToken,
             tokenAmount: tokenAmount.toString(),
             onlyPreferredRelays: onlyPreferredRelays ?? true,
-            isSmartWalletDeploy
+            isSmartWalletDeploy,
+            smartWalletAddress
         };
 
         const internalCallCost = await relayClient.getInternalCallCost(trxDetails);

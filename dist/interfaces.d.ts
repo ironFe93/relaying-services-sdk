@@ -50,7 +50,7 @@ export interface RelayingTransactionOptions {
     onlyPreferredRelays?: boolean;
 }
 export interface RelayGasEstimationOptions {
-    destinationContract: string;
+    destinationContract?: string;
     smartWalletAddress: string;
     tokenFees: string;
     abiEncodedTx: string;

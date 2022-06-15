@@ -60,7 +60,7 @@ export interface RelayingTransactionOptions {
 }
 
 export interface RelayGasEstimationOptions {
-    destinationContract: string;
+    destinationContract?: string;
     smartWalletAddress: string;
     tokenFees: string;
     abiEncodedTx: string;

@@ -387,6 +387,7 @@ export class DefaultRelayingServices implements RelayingServices {
             onlyPreferredRelays,
             callVerifier,
             isSmartWalletDeploy,
+            callForwarder
         } = options;
 
         const relayClient = this.relayProvider.relayClient;
@@ -394,11 +395,14 @@ export class DefaultRelayingServices implements RelayingServices {
 
         const trxDetails: EnvelopingTransactionDetails = {
             from: this._getAccountAddress(),
-            to: destinationContract,
+            to: destinationContract || ZERO_ADDRESS,
             value: '0',
             relayHub: this.contracts.addresses.relayHub,
-            callVerifier: callVerifier || this.contracts.addresses.smartWalletRelayVerifier,
-            callForwarder: smartWalletAddress,
+            callVerifier:
+                callVerifier ||
+                this.contracts.addresses.smartWalletRelayVerifier,
+            callForwarder:
+                callForwarder || this.contracts.addresses.smartWalletFactory,
             data: abiEncodedTx,
             tokenContract: tokenAddress || this.contracts.addresses.testToken,
             tokenAmount: tokenAmount.toString(),
@@ -407,7 +411,9 @@ export class DefaultRelayingServices implements RelayingServices {
             smartWalletAddress
         };
 
-        const internalCallCost = await relayClient.getInternalCallCost(trxDetails);
+        const internalCallCost = await relayClient.getInternalCallCost(
+            trxDetails
+        );
         trxDetails.gas = toHex(internalCallCost);
 
         const tokenGas = (

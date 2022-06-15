@@ -404,9 +404,7 @@ export class DefaultRelayingServices implements RelayingServices {
             onlyPreferredRelays: onlyPreferredRelays ?? true
         };
 
-        const internalCallCost = await relayClient.getInternalCallCost(
-            relayClient.getEstimateGasParams(trxDetails)
-        );
+        const internalCallCost = await relayClient.getInternalCallCost(trxDetails);
         trxDetails.gas = toHex(internalCallCost);
 
         const tokenGas = (

@@ -48,6 +48,7 @@ export interface RelayingTransactionOptions {
     transactionDetails?: Partial<EnvelopingTransactionDetails>;
     value?: number;
     onlyPreferredRelays?: boolean;
+    tokenAddress: string;
 }
 export interface RelayGasEstimationOptions {
     destinationContract?: string;

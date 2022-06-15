@@ -312,7 +312,8 @@ export class DefaultRelayingServices implements RelayingServices {
             tokenAmount,
             transactionDetails,
             value,
-            onlyPreferredRelays
+            onlyPreferredRelays,
+            tokenAddress
         } = options;
 
         log.debug('Checking if the wallet exists');
@@ -333,14 +334,14 @@ export class DefaultRelayingServices implements RelayingServices {
             params: [
                 {
                     from: this._getAccountAddress(),
-                    to: smartWallet.deployment.tokenAddress,
+                    to: tokenAddress,
                     value: value ? value.toString() : '0',
                     relayHub: this.contracts.addresses.relayHub,
                     callVerifier:
                         this.contracts.addresses.smartWalletRelayVerifier,
                     callForwarder: address,
                     data: unsignedTx.data,
-                    tokenContract: smartWallet.deployment.tokenAddress,
+                    tokenContract: tokenAddress,
                     tokenAmount: await this.web3Instance.utils.toWei(
                         tokenAmount ? tokenAmount.toString() : '0'
                     ),

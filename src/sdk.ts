@@ -378,6 +378,10 @@ export class DefaultRelayingServices implements RelayingServices {
     }
 
     async estimateMaxPossibleRelayGas(options: RelayGasEstimationOptions) {
+        /* TODO: WE could check that there are some parameters according with the type of estimation we are doing
+         * (e.g.: if it's not a deployment, the user cannot specify the index and the recoverer or
+         *  if it's not a deployment the destination contract is mandatory)
+         */
         const {
             destinationContract,
             smartWalletAddress,
@@ -388,22 +392,31 @@ export class DefaultRelayingServices implements RelayingServices {
             onlyPreferredRelays,
             callVerifier,
             isSmartWalletDeploy,
-            callForwarder
+            callForwarder,
+            index,
+            recoverer
         } = options;
 
         const relayClient = this.relayProvider.relayClient;
-        const tokenAmount = await this.web3Instance.utils.toWei(tokenFees);
+        const tokenAmount = this.web3Instance.utils.toWei(tokenFees);
+        const callForwarderValue =
+            callForwarder ||
+            (isSmartWalletDeploy
+                ? this.contracts.addresses.smartWalletFactory
+                : smartWalletAddress);
+        const callVerifierValue =
+            callVerifier ||
+            (isSmartWalletDeploy
+                ? this.contracts.addresses.smartWalletDeployVerifier
+                : this.contracts.addresses.smartWalletRelayVerifier);
 
-        const trxDetails: EnvelopingTransactionDetails = {
+        let trxDetails: EnvelopingTransactionDetails = {
             from: this._getAccountAddress(),
             to: destinationContract || ZERO_ADDRESS,
             value: '0',
             relayHub: this.contracts.addresses.relayHub,
-            callVerifier:
-                callVerifier ||
-                this.contracts.addresses.smartWalletRelayVerifier,
-            callForwarder:
-                callForwarder || this.contracts.addresses.smartWalletFactory,
+            callVerifier: callVerifierValue,
+            callForwarder: callForwarderValue,
             data: abiEncodedTx,
             tokenContract: tokenAddress || this.contracts.addresses.testToken,
             tokenAmount: tokenAmount.toString(),
@@ -412,21 +425,33 @@ export class DefaultRelayingServices implements RelayingServices {
             smartWalletAddress
         };
 
-        const internalCallCost = await relayClient.getInternalCallCost(
-            trxDetails
-        );
-        trxDetails.gas = toHex(internalCallCost);
+        if (isSmartWalletDeploy) {
+            trxDetails = {
+                ...trxDetails,
+                index: index || '0',
+                recoverer: recoverer || ZERO_ADDRESS
+            };
+        } else {
+            const internalCallCost = await relayClient.getInternalCallCost(
+                trxDetails
+            );
+            trxDetails.gas = toHex(internalCallCost);
 
-        const tokenGas = (
-            await relayClient.estimateTokenTransferGas(trxDetails, relayWorker)
-        ).toString();
-        trxDetails.tokenGas = tokenGas;
+            const tokenGas = (
+                await relayClient.estimateTokenTransferGas(
+                    trxDetails,
+                    relayWorker
+                )
+            ).toString();
+            trxDetails.tokenGas = tokenGas;
+        }
+
         const maxPossibleGasValue =
             await relayClient.estimateMaxPossibleRelayGas(
                 trxDetails,
                 relayWorker
             );
-        return maxPossibleGasValue.toString();
+        return this.calculateCostFromGas(maxPossibleGasValue);
     }
 
     async estimateMaxPossibleRelayGasWithLinearFit(
@@ -442,9 +467,6 @@ export class DefaultRelayingServices implements RelayingServices {
             relayWorker
         } = options;
 
-        const gasPrice = toBN(
-            await this.relayProvider.relayClient._calculateGasPrice()
-        );
         const tokenAmount = await this.web3Instance.utils.toWei(tokenFees);
         const trxDetails: EnvelopingTransactionDetails = {
             from: this._getAccountAddress(),
@@ -464,7 +486,19 @@ export class DefaultRelayingServices implements RelayingServices {
                 trxDetails,
                 relayWorker
             );
-        const maxPossibleGas = toBN(maxPossibleGasValue);
+        return this.calculateCostFromGas(maxPossibleGasValue);
+    }
+
+    private async calculateCostFromGas(gas: number) {
+        // TODO: we could temporary store this value for a certain amount of time
+        const gasPrice = toBN(
+            await this.relayProvider.relayClient._calculateGasPrice()
+        );
+        log.debug('calculateCostFromGas', {
+            gas,
+            gasPrice: gasPrice.toString()
+        });
+        const maxPossibleGas = toBN(gas);
         const estimate = maxPossibleGas.mul(gasPrice);
         return estimate.toString();
     }

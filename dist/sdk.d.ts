@@ -27,6 +27,7 @@ export declare class DefaultRelayingServices implements RelayingServices {
     relayTransaction(options: RelayingTransactionOptions): Promise<TransactionReceipt>;
     estimateMaxPossibleRelayGas(options: RelayGasEstimationOptions): Promise<string>;
     estimateMaxPossibleRelayGasWithLinearFit(options: RelayGasEstimationOptions): Promise<string>;
+    private calculateCostFromGas;
     private _getAccountAddress;
     private setLogLevel;
 }

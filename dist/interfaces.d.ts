@@ -61,4 +61,6 @@ export interface RelayGasEstimationOptions {
     callVerifier?: string;
     callForwarder?: string;
     isSmartWalletDeploy?: boolean;
+    index?: string;
+    recoverer?: string;
 }

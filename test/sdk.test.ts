@@ -174,7 +174,8 @@ describe('SDK not deployed tests', () => {
         const options: RelayingTransactionOptions = {
             smartWallet,
             unsignedTx,
-            tokenAmount: 0
+            tokenAmount: 0,
+            tokenAddress: '0',
         };
 
         try {
